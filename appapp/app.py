@@ -3,26 +3,58 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# הגדרות דף - ניקוי מוחלט מהשורש
+# הגדרות דף - ניקוי מוחלט
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# --- הזרקת CSS לעיצוב יוקרתי ונקי ---
+# --- הזרקת CSS "The Ghost Sidebar" - מחיקה מוחלטת של הקווים ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
     
-    /* 1. הסתרה מוחלטת של רכיבי מערכת ושאריות כפתורים */
-    [data-testid="stHeader"], [data-testid="stSidebarCollapsedControl"] {
+    /* 1. מחיקת כל רכיבי ה-Sidebar והחצים מהשורש */
+    section[data-testid="stSidebar"] {
+        display: none !important;
+        width: 0px !important;
+    }
+    [data-testid="stSidebarCollapsedControl"], [data-testid="stHeader"], [data-testid="stSidebarResizer"] {
         display: none !important;
     }
+    .st-emotion-cache-z5fcl4, .st-emotion-cache-6q9sum, .st-emotion-cache-16idsys {
+        display: none !important;
+    }
+    
+    /* 2. ניקוי העמוד והגדרת רקע לבן */
     .stApp { background-color: #FFFFFF !important; }
+    .block-container { 
+        padding: 1rem !important; 
+        max-width: 100% !important; 
+        margin: 0 !important;
+    }
     * { font-family: 'Assistant', sans-serif; direction: rtl; }
 
-    /* 2. כפתור פלוס דומיננטי וקבוע בשמאל */
+    /* 3. תווית הגדרות ימנית (SaaS Style) */
+    .side-label {
+        position: fixed;
+        top: 25%;
+        right: 0;
+        background-color: #3D5A5A;
+        color: white;
+        padding: 20px 10px;
+        border-radius: 12px 0 0 12px;
+        z-index: 9999;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: -2px 4px 15px rgba(0,0,0,0.15);
+        pointer-events: none;
+    }
+
+    /* 4. כפתור פלוס דומיננטי בשמאל */
     .stButton > button {
         position: fixed !important;
-        bottom: 30px !important;
-        left: 30px !important;
+        bottom: 35px !important;
+        left: 35px !important;
         width: 75px !important;
         height: 75px !important;
         background-color: #3D5A5A !important;
@@ -37,32 +69,53 @@ st.markdown("""
         justify-content: center !important;
     }
 
-    /* 3. כרטיסיות נתונים נקיות (ללא ריבועים מעליהן) */
+    /* 5. כפתור שקוף להפעלת התווית הימנית */
+    .stButton > button[key="tools_trigger"] {
+        position: fixed !important;
+        top: 25% !important;
+        right: 0 !important;
+        width: 45px !important;
+        height: 140px !important;
+        background: transparent !important;
+        border: none !important;
+        color: transparent !important;
+        z-index: 10001 !important;
+        cursor: pointer !important;
+    }
+
+    /* 6. כרטיסיות נתונים */
     div[data-testid="stMetric"] {
         background: #F9FBFB !important;
         border-radius: 20px !important;
         border-right: 10px solid #3D5A5A !important;
         box-shadow: 0 8px 20px rgba(0,0,0,0.02) !important;
-        padding: 20px !important;
     }
     div[data-testid="stMetricValue"] > div { color: #2A3F3F !important; font-weight: 700 !important; }
 
-    /* 4. עיצוב חלון מרחף */
+    /* 7. עיצוב חלון מרחף */
     div[data-testid="stDialog"] { border-radius: 25px !important; direction: rtl !important; }
-    
-    /* 5. עיצוב תפריט הצד (Sidebar) שלא יצור קו */
-    [data-testid="stSidebar"] {
-        border-left: none !important;
-        background-color: #F8FBFB !important;
-    }
     </style>
+    
+    <div class="side-label">⚙️ הגדרות וכלים</div>
     """, unsafe_allow_html=True)
 
 # --- חלונות מרחפים ---
 
+@st.dialog("שורת כלים והגדרות")
+def show_tools_menu():
+    st.markdown("### 🛠️ תפריט ניהול")
+    choice = st.radio("בחר פעולה:", ["🤖 בוט פיננסי", "📜 היסטוריה", "📦 ארכיון", "⚙️ הגדרות יעד"], label_visibility="collapsed")
+    st.markdown("---")
+    if choice == "⚙️ הגדרות יעד":
+        st.number_input("עדכון יעד חיסכון", value=20000)
+    elif choice == "🤖 בוט פיננסי":
+        st.info("רחלי, הכל נקי עכשיו!")
+    if st.button("סגור", use_container_width=True):
+        st.rerun()
+
 @st.dialog("דיווח תנועה חדשה")
 def show_transaction_dialog():
-    st.markdown("<h3 style='color: #3D5A5A;'>📝 פרטי הפעולה</h3>", unsafe_allow_html=True)
+    st.markdown("### 📝 פרטי הפעולה")
     t_mode = st.radio("סוג פעולה", ["הוצאה", "הכנסה"], horizontal=True)
     ca, cb = st.columns(2)
     with ca:
@@ -78,22 +131,16 @@ def show_transaction_dialog():
         st.balloons()
         st.rerun()
 
-# --- תפריט צדדי (במקום תווית שלא עבדה) ---
-with st.sidebar:
-    st.markdown("<h2 style='color: #3D5A5A;'>⚙️ הגדרות וכלים</h2>", unsafe_allow_html=True)
-    st.markdown("---")
-    st.write("🤖 בוט פיננסי")
-    st.write("📜 היסטוריה")
-    st.write("📦 ארכיון")
-    st.number_input("יעד חיסכון", value=20000)
-    st.info("רחלי, תשתמשי בחץ הקטן בפינה כדי לפתוח/לסגור אותי.")
-
 # --- תוכן דף הבית ---
+
+# כפתור התווית השקוף
+if st.button(" ", key="tools_trigger"):
+    show_tools_menu()
+
 st.markdown('<h1 style="text-align: center; color: #2A3F3F; font-size: 32px;">Wealth Management</h1>', unsafe_allow_html=True)
 st.markdown('<p style="text-align: center; color: #666; margin-top: -15px;">Asset Tracking Dashboard</p>', unsafe_allow_html=True)
 
 # דשבורד
-st.markdown("<br>", unsafe_allow_html=True)
 m1, m2, m3 = st.columns(3)
 with m1: st.metric("Cash Balance", "$2,450")
 with m2: st.metric("Bank Assets", "$4,100")
@@ -117,7 +164,7 @@ with g_col2:
     fig2.update_layout(showlegend=False, margin=dict(t=50, b=50, l=50, r=50), height=380)
     st.plotly_chart(fig2, use_container_width=True)
 
-# --- כפתור הפלוס הצף (היחיד) ---
+# כפתור הפלוס
 if st.button("+"):
     show_transaction_dialog()
 
