@@ -3,34 +3,34 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# הגדרות דף
+# הגדרות דף - חייב להישאר collapsed
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# --- הזרקת CSS "The Invisible Wall" ---
+# --- הזרקת CSS "The Ghost Line Killer" ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
     
-    /* 1. העלמה מוחלטת של כל פס מפריד - צביעה בלבן וכפייה */
+    /* 1. מחיקה אגרסיבית של כל קו, פס, צל או מפריד */
     [data-testid="stHeader"], .st-emotion-cache-16idsys, .st-emotion-cache-6q9sum, 
-    .st-emotion-cache-z5fcl4, .st-emotion-cache-10o1p90, .st-emotion-cache-kgp7u1 {
+    .st-emotion-cache-z5fcl4, .st-emotion-cache-10o1p90, .st-emotion-cache-kgp7u1,
+    [data-testid="stSidebarResizer"] {
         display: none !important;
-        background-color: white !important;
+        background-color: transparent !important;
         border: none !important;
-        box-shadow: none !important;
     }
     
-    /* מחיקת הקו האפור המפריד בין ה-Main ל-Sidebar */
-    .st-emotion-cache-1837eb1 { border-top: none !important; border-bottom: none !important; }
-    div[data-testid="stSidebar"] { border-left: none !important; box-shadow: none !important; }
+    /* ביטול הפס המפריד הספציפי בין ה-Sidebar לתוכן */
+    .st-emotion-cache-1837eb1 { border: none !important; }
+    div[data-testid="stSidebar"] { border: none !important; box-shadow: none !important; }
+    div[class^="st-emotion-cache-1cv9m64"] { border: none !important; }
 
-    /* 2. רקע לבן צחור לכל האפליקציה */
+    /* 2. רקע לבן צחור ומרחקי בטיחות */
     .stApp { background-color: #FFFFFF !important; }
     .block-container { 
         padding: 2rem !important; 
         max-width: 95% !important; 
         background-color: white !important;
-        z-index: 10 !important; /* מרים את התוכן מעל ה"פסים" של המערכת */
     }
     
     /* 3. פונט Assistant ויישור לימין */
@@ -82,11 +82,12 @@ st.markdown("""
 # --- פונקציית החלון המרחף (Dialog) ---
 @st.dialog("תיעוד פעולה חדשה")
 def show_transaction_form():
+    st.write("אנא הזיני את פרטי הפעולה הפיננסית:")
     t_mode = st.radio("סוג פעולה", ["הוצאה", "הכנסה"], horizontal=True)
     
     ca, cb = st.columns(2)
     with ca:
-        t_wallet = st.selectbox("חשבון / מקור", ["מזומן", "BofA", "Amex", "Food Stamps", "Pepper", "Leumi"])
+        t_wallet = st.selectbox("אמצעי תשלום / חשבון", ["מזומן", "BofA", "Amex", "Food Stamps", "Pepper", "Leumi"])
         t_amount = st.number_input("סכום ($)", min_value=0.0, step=10.0)
     with cb:
         t_date = st.date_input("תאריך", datetime.now())
@@ -119,7 +120,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.progress(5800/20000)
 st.markdown('<p style="font-size: 13px; color: #716B94;">יעד חיסכון: <b>$20,000</b></p>', unsafe_allow_html=True)
 
-# גרפים
+# גרפים בסגול יוקרתי
 st.markdown("<br>", unsafe_allow_html=True)
 col_g1, col_g2 = st.columns(2)
 purple_palette = ['#4A3AFF', '#6C63FF', '#8E86FF', '#B0AAFF', '#D2CFFF']
@@ -138,7 +139,7 @@ with col_g2:
     fig2.update_layout(showlegend=True, margin=dict(t=30, b=0, l=0, r=0))
     st.plotly_chart(fig2, use_container_width=True)
 
-# אייקונים בתחתית
+# אייקונים בוגרים בתחתית
 st.markdown("### ניתוח קטגוריות", unsafe_allow_html=True)
 row_icons = st.columns(5)
 cats = [("CAR", "רכב"), ("FOOD", "מזון"), ("GIVE", "צדקה"), ("HOME", "דירה"), ("MISC", "כללי")]
@@ -162,4 +163,4 @@ with st.sidebar:
     st.number_input("עדכון יעד", value=20000)
     st.markdown("---")
     st.subheader("🤖 הבוט של רחלי")
-    st.info("הקוד הותאם לנייד לניקוי מקסימלי של פסים.")
+    st.info("הקוד הותאם להעלמת פסים סופית.")
