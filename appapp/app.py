@@ -3,40 +3,33 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# הגדרות דף - חייב להישאר collapsed
+# הגדרות דף
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# --- הזרקת CSS "The Ghost Line Killer" ---
+# --- הזרקת CSS "The Invisible Sash" ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
     
-    /* 1. מחיקה אגרסיבית של כל קו, פס, צל או מפריד */
+    /* 1. העלמה מוחלטת של כל מה שזז, מפריד או מצייר קו */
     [data-testid="stHeader"], .st-emotion-cache-16idsys, .st-emotion-cache-6q9sum, 
     .st-emotion-cache-z5fcl4, .st-emotion-cache-10o1p90, .st-emotion-cache-kgp7u1,
-    [data-testid="stSidebarResizer"] {
+    [data-testid="stSidebarResizer"], .st-emotion-cache-1837eb1, .st-emotion-cache-1cv9m64 {
         display: none !important;
-        background-color: transparent !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
         border: none !important;
+        width: 0px !important;
     }
-    
-    /* ביטול הפס המפריד הספציפי בין ה-Sidebar לתוכן */
-    .st-emotion-cache-1837eb1 { border: none !important; }
-    div[data-testid="stSidebar"] { border: none !important; box-shadow: none !important; }
-    div[class^="st-emotion-cache-1cv9m64"] { border: none !important; }
 
-    /* 2. רקע לבן צחור ומרחקי בטיחות */
+    /* 2. רקע לבן כפוי לכל פינה באפליקציה */
     .stApp { background-color: #FFFFFF !important; }
-    .block-container { 
-        padding: 2rem !important; 
-        max-width: 95% !important; 
-        background-color: white !important;
-    }
+    .block-container { padding: 2rem !important; max-width: 95% !important; background-color: white !important; }
     
     /* 3. פונט Assistant ויישור לימין */
     * { font-family: 'Assistant', sans-serif; direction: rtl; text-align: right; }
     
-    /* 4. כרטיסיות נתונים יוקרתיות */
+    /* 4. כרטיסיות נתונים בוגרות */
     div[data-testid="stMetric"] {
         background-color: #FFFFFF !important;
         border-radius: 15px !important;
@@ -63,7 +56,7 @@ st.markdown("""
         z-index: 99999 !important;
     }
 
-    /* 6. עיצוב האייקונים בתחתית - בוגר ונקי */
+    /* 6. אייקונים בוגרים בתחתית */
     .cat-box {
         background-color: #FDFDFF !important;
         border-radius: 12px !important;
@@ -74,20 +67,19 @@ st.markdown("""
     .cat-label { color: #5A52CB !important; font-size: 13px !important; font-weight: 700 !important; margin-top: 5px !important; }
     .cat-symbol { color: #B0B0D0 !important; font-size: 11px !important; letter-spacing: 2px !important; }
 
-    /* עיצוב חלון הדיאלוג המרחף */
+    /* עיצוב הדיאלוג */
     div[data-testid="stDialog"] { direction: rtl !important; background-color: white !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- פונקציית החלון המרחף (Dialog) ---
+# --- פונקציית הדיאלוג המרחף ---
 @st.dialog("תיעוד פעולה חדשה")
 def show_transaction_form():
-    st.write("אנא הזיני את פרטי הפעולה הפיננסית:")
     t_mode = st.radio("סוג פעולה", ["הוצאה", "הכנסה"], horizontal=True)
     
     ca, cb = st.columns(2)
     with ca:
-        t_wallet = st.selectbox("אמצעי תשלום / חשבון", ["מזומן", "BofA", "Amex", "Food Stamps", "Pepper", "Leumi"])
+        t_wallet = st.selectbox("חשבון / מקור", ["מזומן", "BofA", "Amex", "Food Stamps", "Pepper", "Leumi"])
         t_amount = st.number_input("סכום ($)", min_value=0.0, step=10.0)
     with cb:
         t_date = st.date_input("תאריך", datetime.now())
@@ -98,17 +90,16 @@ def show_transaction_form():
     
     t_desc = st.text_input("פירוט", placeholder="מה בדיוק קרה?")
     
-    st.markdown("<br>", unsafe_allow_html=True)
     if st.button("אישור ושמירה", use_container_width=True):
         st.balloons()
-        st.success("הפעולה נרשמה בהצלחה!")
+        st.success("נשמר!")
         st.rerun()
 
-# --- תוכן עמוד הבית ---
-st.markdown('<h1 style="text-align: center; font-size: 30px; color: #1A1A2E;">Wealth Management</h1>', unsafe_allow_html=True)
+# --- עמוד הבית ---
+st.markdown('<h1 style="text-align: center; font-size: 30px;">Wealth Management</h1>', unsafe_allow_html=True)
 st.markdown('<p style="text-align: center; color: #716B94; margin-top: -15px;">Asset Tracking | רחלי</p>', unsafe_allow_html=True)
 
-# דשבורד כסף
+# דשבורד
 st.markdown("<br>", unsafe_allow_html=True)
 c1, c2, c3 = st.columns(3)
 with c1: st.metric("Cash", "$2,450")
@@ -120,7 +111,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.progress(5800/20000)
 st.markdown('<p style="font-size: 13px; color: #716B94;">יעד חיסכון: <b>$20,000</b></p>', unsafe_allow_html=True)
 
-# גרפים בסגול יוקרתי
+# גרפים
 st.markdown("<br>", unsafe_allow_html=True)
 col_g1, col_g2 = st.columns(2)
 purple_palette = ['#4A3AFF', '#6C63FF', '#8E86FF', '#B0AAFF', '#D2CFFF']
@@ -139,7 +130,7 @@ with col_g2:
     fig2.update_layout(showlegend=True, margin=dict(t=30, b=0, l=0, r=0))
     st.plotly_chart(fig2, use_container_width=True)
 
-# אייקונים בוגרים בתחתית
+# אייקונים
 st.markdown("### ניתוח קטגוריות", unsafe_allow_html=True)
 row_icons = st.columns(5)
 cats = [("CAR", "רכב"), ("FOOD", "מזון"), ("GIVE", "צדקה"), ("HOME", "דירה"), ("MISC", "כללי")]
@@ -153,14 +144,14 @@ for i, (symbol, name) in enumerate(cats):
             </div>
         ''', unsafe_allow_html=True)
 
-# כפתור הפלוס הצף
+# פלוס צף
 if st.button("+"):
     show_transaction_form()
 
-# תפריט צד (Sidebar)
+# תפריט צד
 with st.sidebar:
     st.title("⚙️ הגדרות")
     st.number_input("עדכון יעד", value=20000)
     st.markdown("---")
     st.subheader("🤖 הבוט של רחלי")
-    st.info("הקוד הותאם להעלמת פסים סופית.")
+    st.info("רחלי, בואי נראה אם הקו נעלם סופית.")
