@@ -6,7 +6,7 @@ import plotly.express as px
 # הגדרות דף
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# --- הזרקת CSS מתקדם לניקוי ועיצוב ---
+# --- הזרקת CSS "The Luxury Clean" ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
@@ -17,26 +17,27 @@ st.markdown("""
         display: none !important;
     }
     
-    /* העלמת הפס המפריד המציק - שיטה סופנית */
-    div[data-testid="stVerticalBlock"] > div:has(hr) { display: none !important; }
+    /* העלמת הקו המפריד המציק - צביעה בלבן מוחלט */
     hr { display: none !important; }
+    div[data-testid="stVerticalBlock"] > div { border: none !important; }
     .st-emotion-cache-1837eb1 { border-top: none !important; }
-
-    /* 2. רקע לבן נקי ופונט */
+    
+    /* 2. רקע לבן צחור ופונט Assistant */
     .stApp { background-color: #FFFFFF !important; }
     .block-container { padding: 2rem !important; max-width: 95% !important; }
     * { font-family: 'Assistant', sans-serif; direction: rtl; text-align: right; }
     
-    /* 3. כרטיסיות נתונים */
+    /* 3. כרטיסיות נתונים יוקרתיות */
     div[data-testid="stMetric"] {
         background-color: #FFFFFF !important;
         border-radius: 15px !important;
-        padding: 20px !important;
+        padding: 25px !important;
         border: 1px solid #F0F0F5 !important;
         box-shadow: 0 4px 12px rgba(0,0,0,0.02) !important;
         border-right: 5px solid #4A3AFF !important;
     }
-    
+    div[data-testid="stMetricValue"] > div { color: #4A3AFF !important; font-size: 34px !important; font-weight: 700 !important; }
+
     /* 4. כפתור פלוס צף (FAB) */
     div.stButton > button:first-child {
         position: fixed !important;
@@ -53,20 +54,20 @@ st.markdown("""
         z-index: 99999 !important;
     }
 
-    /* 5. עיצוב האייקונים בתחתית */
+    /* 5. עיצוב האייקונים בתחתית - בוגר ונקי */
     .cat-box {
         background-color: #FDFDFF !important;
         border-radius: 12px !important;
         padding: 15px !important;
         text-align: center !important;
         border: 1px solid #F0F0F5 !important;
-        display: block !important;
     }
-    .cat-label { color: #5A52CB !important; font-size: 13px !important; font-weight: 700 !important; margin-top: 5px !important; text-align: center !important; }
-    .cat-symbol { color: #B0B0D0 !important; font-size: 16px !important; text-align: center !important; }
+    .cat-label { color: #5A52CB !important; font-size: 13px !important; font-weight: 700 !important; margin-top: 5px !important; }
+    .cat-symbol { color: #B0B0D0 !important; font-size: 12px !important; letter-spacing: 2px !important; }
 
-    /* עיצוב חלון הדיאלוג */
-    div[data-testid="stDialog"] { direction: rtl !important; }
+    /* עיצוב חלון הדיאלוג המרחף */
+    div[data-testid="stDialog"] { direction: rtl !important; background-color: white !important; border: none !important; }
+    div[data-testid="stDialog"] [data-testid="stVerticalBlock"] { border: none !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -77,7 +78,7 @@ def show_transaction_form():
     
     ca, cb = st.columns(2)
     with ca:
-        t_wallet = st.selectbox("חשבון", ["מזומן", "BofA", "Amex", "Food Stamps", "Pepper", "Leumi"])
+        t_wallet = st.selectbox("חשבון / מקור", ["מזומן", "BofA", "Amex", "Food Stamps", "Pepper", "Leumi"])
         t_amount = st.number_input("סכום ($)", min_value=0.0, step=10.0)
     with cb:
         t_date = st.date_input("תאריך", datetime.now())
@@ -86,17 +87,17 @@ def show_transaction_form():
         else:
             t_cat = st.selectbox("מקור הכנסה", ["משכורת ישראל", "משכורת רחלי", "כללי ישראל", "עצמאי רחלי", "כללי רחלי"])
     
-    t_desc = st.text_input("פירוט", placeholder="מה בדיוק קרה?")
+    t_desc = st.text_input("פירוט", placeholder="למשל: קניות, בונוס, עסק...")
     
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("אישור ושמירה", use_container_width=True):
         st.balloons()
-        st.success("הפעולה נרשמה!")
+        st.success("נשמר בבטחה!")
         st.rerun()
 
-# --- עמוד הבית ---
+# --- תוכן עמוד הבית ---
 st.markdown('<h1 style="text-align: center; font-size: 32px; color: #1A1A2E;">Wealth Management</h1>', unsafe_allow_html=True)
-st.markdown('<p style="text-align: center; color: #716B94; margin-top: -15px;">Asset Tracking | רחלי</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align: center; color: #716B94; margin-top: -15px;">ניהול נכסים וצמיחה | רחלי</p>', unsafe_allow_html=True)
 
 # דשבורד כסף
 st.markdown("<br>", unsafe_allow_html=True)
@@ -108,28 +109,28 @@ with c3: st.metric("Amex", "$1,200-")
 # מד התקדמות
 st.markdown("<br>", unsafe_allow_html=True)
 st.progress(5800/20000)
-st.markdown('<p style="font-size: 13px; color: #716B94;">יעד חיסכון: $20,000</p>', unsafe_allow_html=True)
+st.markdown('<p style="font-size: 13px; color: #716B94;">יעד חיסכון: <b>$20,000</b></p>', unsafe_allow_html=True)
 
-# גרפים עם צבעים מתוקנים
+# גרפים יוקרתיים בסגול
 st.markdown("<br>", unsafe_allow_html=True)
 col_g1, col_g2 = st.columns(2)
-colors = ['#4A3AFF', '#6C63FF', '#8E86FF', '#B0AAFF', '#D2CFFF']
+purple_palette = ['#4A3AFF', '#6C63FF', '#8E86FF', '#B0AAFF', '#D2CFFF']
 
 with col_g1:
     df1 = pd.DataFrame({'Cat': ['רכב', 'מזון', 'צדקה', 'דירה', 'כללי'], 'Val': [800, 300, 750, 1200, 250]})
     fig1 = px.pie(df1, values='Val', names='Cat', hole=0.8, title="פירוט סבב")
-    fig1.update_traces(marker=dict(colors=colors), textinfo='none')
+    fig1.update_traces(marker=dict(colors=purple_palette), textinfo='none')
     fig1.update_layout(showlegend=True, margin=dict(t=30, b=0, l=0, r=0))
     st.plotly_chart(fig1, use_container_width=True)
 
 with col_g2:
     df2 = pd.DataFrame({'Cat': ['רכב', 'מזון', 'צדקה', 'דירה', 'כללי'], 'Val': [1500, 500, 1500, 1200, 400]})
     fig2 = px.pie(df2, values='Val', names='Cat', hole=0.8, title="ממוצע תקופתי")
-    fig2.update_traces(marker=dict(colors=colors[::-1]), textinfo='none')
+    fig2.update_traces(marker=dict(colors=purple_palette[::-1]), textinfo='none')
     fig2.update_layout(showlegend=True, margin=dict(t=30, b=0, l=0, r=0))
     st.plotly_chart(fig2, use_container_width=True)
 
-# --- אייקונים בתחתית (חזרו!) ---
+# אייקונים בתחתית
 st.markdown("### ניתוח קטגוריות", unsafe_allow_html=True)
 row_icons = st.columns(5)
 cats = [("CAR", "רכב"), ("FOOD", "מזון"), ("GIVE", "צדקה"), ("HOME", "דירה"), ("MISC", "כללי")]
@@ -143,14 +144,14 @@ for i, (symbol, name) in enumerate(cats):
             </div>
         ''', unsafe_allow_html=True)
 
-# כפתור הפלוס
+# כפתור הפלוס הצף
 if st.button("+"):
     show_transaction_form()
 
-# תפריט צד
+# תפריט צד (Sidebar)
 with st.sidebar:
     st.title("⚙️ הגדרות")
     st.number_input("עדכון יעד", value=20000)
     st.markdown("---")
     st.subheader("🤖 הבוט של רחלי")
-    st.info("רחלי, הצבעים והאייקונים חזרו.")
+    st.info("רחלי, הקוד נוקה סופית מפסים.")
