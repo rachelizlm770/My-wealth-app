@@ -6,28 +6,37 @@ import plotly.express as px
 # הגדרות דף
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# --- הזרקת CSS "The Luxury Clean" ---
+# --- הזרקת CSS "The Invisible Wall" ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
     
-    /* 1. מחיקה אגרסיבית של קווים ושאריות מערכת */
+    /* 1. העלמה מוחלטת של כל פס מפריד - צביעה בלבן וכפייה */
     [data-testid="stHeader"], .st-emotion-cache-16idsys, .st-emotion-cache-6q9sum, 
-    .st-emotion-cache-z5fcl4, .st-emotion-cache-10o1p90 {
+    .st-emotion-cache-z5fcl4, .st-emotion-cache-10o1p90, .st-emotion-cache-kgp7u1 {
         display: none !important;
+        background-color: white !important;
+        border: none !important;
+        box-shadow: none !important;
     }
     
-    /* העלמת הקו המפריד המציק - צביעה בלבן מוחלט */
-    hr { display: none !important; }
-    div[data-testid="stVerticalBlock"] > div { border: none !important; }
-    .st-emotion-cache-1837eb1 { border-top: none !important; }
-    
-    /* 2. רקע לבן צחור ופונט Assistant */
+    /* מחיקת הקו האפור המפריד בין ה-Main ל-Sidebar */
+    .st-emotion-cache-1837eb1 { border-top: none !important; border-bottom: none !important; }
+    div[data-testid="stSidebar"] { border-left: none !important; box-shadow: none !important; }
+
+    /* 2. רקע לבן צחור לכל האפליקציה */
     .stApp { background-color: #FFFFFF !important; }
-    .block-container { padding: 2rem !important; max-width: 95% !important; }
+    .block-container { 
+        padding: 2rem !important; 
+        max-width: 95% !important; 
+        background-color: white !important;
+        z-index: 10 !important; /* מרים את התוכן מעל ה"פסים" של המערכת */
+    }
+    
+    /* 3. פונט Assistant ויישור לימין */
     * { font-family: 'Assistant', sans-serif; direction: rtl; text-align: right; }
     
-    /* 3. כרטיסיות נתונים יוקרתיות */
+    /* 4. כרטיסיות נתונים יוקרתיות */
     div[data-testid="stMetric"] {
         background-color: #FFFFFF !important;
         border-radius: 15px !important;
@@ -38,7 +47,7 @@ st.markdown("""
     }
     div[data-testid="stMetricValue"] > div { color: #4A3AFF !important; font-size: 34px !important; font-weight: 700 !important; }
 
-    /* 4. כפתור פלוס צף (FAB) */
+    /* 5. כפתור פלוס צף (FAB) */
     div.stButton > button:first-child {
         position: fixed !important;
         bottom: 35px !important;
@@ -54,7 +63,7 @@ st.markdown("""
         z-index: 99999 !important;
     }
 
-    /* 5. עיצוב האייקונים בתחתית - בוגר ונקי */
+    /* 6. עיצוב האייקונים בתחתית - בוגר ונקי */
     .cat-box {
         background-color: #FDFDFF !important;
         border-radius: 12px !important;
@@ -63,11 +72,10 @@ st.markdown("""
         border: 1px solid #F0F0F5 !important;
     }
     .cat-label { color: #5A52CB !important; font-size: 13px !important; font-weight: 700 !important; margin-top: 5px !important; }
-    .cat-symbol { color: #B0B0D0 !important; font-size: 12px !important; letter-spacing: 2px !important; }
+    .cat-symbol { color: #B0B0D0 !important; font-size: 11px !important; letter-spacing: 2px !important; }
 
     /* עיצוב חלון הדיאלוג המרחף */
-    div[data-testid="stDialog"] { direction: rtl !important; background-color: white !important; border: none !important; }
-    div[data-testid="stDialog"] [data-testid="stVerticalBlock"] { border: none !important; }
+    div[data-testid="stDialog"] { direction: rtl !important; background-color: white !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -87,17 +95,17 @@ def show_transaction_form():
         else:
             t_cat = st.selectbox("מקור הכנסה", ["משכורת ישראל", "משכורת רחלי", "כללי ישראל", "עצמאי רחלי", "כללי רחלי"])
     
-    t_desc = st.text_input("פירוט", placeholder="למשל: קניות, בונוס, עסק...")
+    t_desc = st.text_input("פירוט", placeholder="מה בדיוק קרה?")
     
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("אישור ושמירה", use_container_width=True):
         st.balloons()
-        st.success("נשמר בבטחה!")
+        st.success("הפעולה נרשמה בהצלחה!")
         st.rerun()
 
 # --- תוכן עמוד הבית ---
-st.markdown('<h1 style="text-align: center; font-size: 32px; color: #1A1A2E;">Wealth Management</h1>', unsafe_allow_html=True)
-st.markdown('<p style="text-align: center; color: #716B94; margin-top: -15px;">ניהול נכסים וצמיחה | רחלי</p>', unsafe_allow_html=True)
+st.markdown('<h1 style="text-align: center; font-size: 30px; color: #1A1A2E;">Wealth Management</h1>', unsafe_allow_html=True)
+st.markdown('<p style="text-align: center; color: #716B94; margin-top: -15px;">Asset Tracking | רחלי</p>', unsafe_allow_html=True)
 
 # דשבורד כסף
 st.markdown("<br>", unsafe_allow_html=True)
@@ -111,7 +119,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.progress(5800/20000)
 st.markdown('<p style="font-size: 13px; color: #716B94;">יעד חיסכון: <b>$20,000</b></p>', unsafe_allow_html=True)
 
-# גרפים יוקרתיים בסגול
+# גרפים
 st.markdown("<br>", unsafe_allow_html=True)
 col_g1, col_g2 = st.columns(2)
 purple_palette = ['#4A3AFF', '#6C63FF', '#8E86FF', '#B0AAFF', '#D2CFFF']
@@ -154,4 +162,4 @@ with st.sidebar:
     st.number_input("עדכון יעד", value=20000)
     st.markdown("---")
     st.subheader("🤖 הבוט של רחלי")
-    st.info("רחלי, הקוד נוקה סופית מפסים.")
+    st.info("הקוד הותאם לנייד לניקוי מקסימלי של פסים.")
