@@ -6,7 +6,7 @@ import plotly.express as px
 # הגדרות דף - ניקוי מוחלט
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# --- הזרקת CSS לעיצוב יוקרתי ושליטה בתווית ---
+# --- הזרקת CSS ו-HTML לתווית צד אקטיבית ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
@@ -18,40 +18,29 @@ st.markdown("""
     .stApp { background-color: #FFFFFF !important; }
     * { font-family: 'Assistant', sans-serif; direction: rtl; }
 
-    /* 2. תווית הגדרות ימנית (Visual Only) */
-    .side-label-visual {
+    /* 2. עיצוב התווית הימנית כאלמנט לחיץ */
+    .side-label-fixed {
         position: fixed;
         top: 25%;
         right: 0;
         background-color: #3D5A5A;
         color: white;
-        padding: 20px 10px;
+        padding: 20px 12px;
         border-radius: 12px 0 0 12px;
-        z-index: 999;
+        z-index: 10000;
         writing-mode: vertical-rl;
         text-orientation: mixed;
         font-weight: 600;
         font-size: 14px;
-        box-shadow: -2px 4px 15px rgba(0,0,0,0.15);
-        pointer-events: none; /* נותן לקליק לעבור דרכו לכפתור שמתחת */
+        box-shadow: -2px 4px 15px rgba(0,0,0,0.2);
+        cursor: pointer;
+        border: none;
+        transition: 0.3s;
     }
+    .side-label-fixed:hover { background-color: #2A3F3F; padding-right: 15px; }
 
-    /* 3. כפתור שקוף שיושב מעל התווית ומפעיל את הדיאלוג */
-    .stButton > button[key="label_trigger"] {
-        position: fixed !important;
-        top: 25% !important;
-        right: 0 !important;
-        width: 40px !important;
-        height: 120px !important;
-        background: transparent !important;
-        border: none !important;
-        color: transparent !important;
-        z-index: 1000 !important;
-        cursor: pointer !important;
-    }
-
-    /* 4. כפתור פלוס דומיננטי בשמאל */
-    div.stButton > button:not([key="label_trigger"]) {
+    /* 3. כפתור פלוס דומיננטי בשמאל */
+    div.stButton > button {
         position: fixed !important;
         bottom: 40px !important;
         left: 40px !important;
@@ -63,13 +52,13 @@ st.markdown("""
         border: 4px solid white !important;
         font-size: 45px !important;
         box-shadow: 0 12px 30px rgba(61, 90, 90, 0.3) !important;
-        z-index: 99999 !important;
+        z-index: 10000 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
     }
 
-    /* 5. כרטיסיות נתונים */
+    /* 4. כרטיסיות נתונים */
     div[data-testid="stMetric"] {
         background: #F9FBFB !important;
         border-radius: 20px !important;
@@ -78,9 +67,15 @@ st.markdown("""
     }
     div[data-testid="stMetricValue"] > div { color: #2A3F3F !important; font-weight: 700 !important; }
     </style>
-    
-    <div class="side-label-visual">⚙️ הגדרות וכלים</div>
     """, unsafe_allow_html=True)
+
+# --- ניהול מצב לפתיחת חלונות ---
+if 'show_tools' not in st.session_state:
+    st.session_state.show_tools = False
+
+# פונקציות להחלפת מצב
+def toggle_tools():
+    st.session_state.show_tools = True
 
 # --- חלונות מרחפים ---
 
@@ -93,7 +88,9 @@ def show_tools_menu():
         st.number_input("עדכון יעד חיסכון", value=20000)
     elif choice == "🤖 בוט פיננסי":
         st.info("רחלי, אני מוכן לנתח את הנתונים.")
+    
     if st.button("סגור", use_container_width=True):
+        st.session_state.show_tools = False
         st.rerun()
 
 @st.dialog("דיווח תנועה חדשה")
@@ -114,7 +111,36 @@ def show_transaction_dialog():
         st.balloons()
         st.rerun()
 
+# --- הפעלה אוטומטית של הדיאלוג אם המצב השתנה ---
+if st.session_state.show_tools:
+    show_tools_menu()
+
 # --- תוכן דף הבית ---
+
+# 1. יצירת התווית כפתור (HTML + Streamlit Bridge)
+# משתמשים בכפתור שקוף לחלוטין שיושב מעל התווית המעוצבת
+st.markdown('<div class="side-label-fixed">⚙️ הגדרות וכלים</div>', unsafe_allow_html=True)
+if st.button(" ", key="hidden_trigger", help=None):
+    st.session_state.show_tools = True
+    st.rerun()
+
+# הוספת ה-CSS לכפתור השקוף הספציפי הזה
+st.markdown("""
+    <style>
+    button[key="hidden_trigger"] {
+        position: fixed !important;
+        top: 25% !important;
+        right: 0 !important;
+        width: 50px !important;
+        height: 140px !important;
+        z-index: 10001 !important;
+        background: transparent !important;
+        border: none !important;
+        color: transparent !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 st.markdown('<h1 style="text-align: center; color: #2A3F3F; font-size: 32px;">Wealth Management</h1>', unsafe_allow_html=True)
 st.markdown('<p style="text-align: center; color: #666; margin-top: -15px;">Asset Tracking Dashboard</p>', unsafe_allow_html=True)
 
@@ -143,14 +169,8 @@ with g_col2:
     fig2.update_layout(showlegend=False, margin=dict(t=50, b=50, l=50, r=50), height=380)
     st.plotly_chart(fig2, use_container_width=True)
 
-# --- כפתורים צפים ומנגנון הפעלה ---
-
-# 1. הכפתור השקוף שמפעיל את הכלים (יושב מעל התווית הימנית)
-if st.button(" ", key="label_trigger"):
-    show_tools_menu()
-
-# 2. כפתור הפלוס
-if st.button("+", key="main_plus"):
+# כפתור הפלוס (דיווח תנועה)
+if st.button("+", key="plus_main"):
     show_transaction_dialog()
 
 # שורת קטגוריות
