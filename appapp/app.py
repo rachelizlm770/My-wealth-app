@@ -3,141 +3,150 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# הגדרות דף - נקי ומותאם למובייל
-st.set_page_config(page_title="העושר של רחלי", layout="wide", initial_sidebar_state="collapsed")
+# הגדרות דף - הסתרת התפריטים לחלוטין למראה נקי
+st.set_page_config(page_title="העושר שלי", layout="wide", initial_sidebar_state="collapsed")
 
-# --- הזרקת עיצוב יוקרתי: רקע בהיר, כפתור צף וצבעים ממריצים ---
+# --- הזרקת עיצוב Luxury Purple: בוגר, אחיד ומכבד ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
     
-    /* רקע בהיר ונקי */
+    /* ניקוי רקע כללי והסרת הפס הצידי */
     .stApp { background-color: #FFFFFF !important; }
+    [data-testid="stSidebar"] { background-color: #F8F7FF !important; border-left: 1px solid #E9E4FF; }
     
-    /* פונט Assistant קריא וברור */
+    /* פונט Assistant ויישור לימין */
     * { font-family: 'Assistant', sans-serif; direction: rtl; text-align: right; }
     
-    /* כרטיסיות נתונים - לבנות עם מסגרת צבעונית עדינה */
+    /* כרטיסיות נתונים - סגול בהיר מאוד עם קו סגול עמוק */
     div[data-testid="stMetric"] {
-        background-color: #F8FAFC !important;
-        border-radius: 25px !important;
+        background-color: #FBFBFF !important;
+        border-radius: 20px !important;
         padding: 20px !important;
-        border: 2px solid #E2E8F0 !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
+        border: 1px solid #E9E4FF !important;
+        box-shadow: 0 4px 15px rgba(108, 99, 255, 0.05) !important;
+        border-top: 4px solid #6C63FF !important; /* פס עליון סגול למראה מכבד */
     }
     
-    /* טקסטים שחורים וברורים */
-    h1, h2, h3, p, span, label { color: #1A202C !important; font-weight: 700 !important; }
-    div[data-testid="stMetricValue"] > div { color: #319795 !important; font-size: 32px !important; }
-
-    /* כפתור הפלוס הצף (FAB) - עיגול טורקיז */
+    /* טקסטים - סגול כהה/שחור */
+    h1, h2, h3, p, span, label { color: #2D2A4A !important; font-weight: 600 !important; }
+    div[data-testid="stMetricValue"] > div { color: #5A52CB !important; font-size: 32px !important; font-weight: 700 !important; }
+    
+    /* כפתור הפלוס הצף (FAB) - סגול יוקרתי */
     .fab-button {
         position: fixed;
-        bottom: 30px;
-        left: 30px; /* צד שמאל למטה */
-        width: 70px;
-        height: 70px;
-        background-color: #38B2AC;
+        bottom: 40px;
+        left: 40px;
+        width: 65px;
+        height: 65px;
+        background: linear-gradient(135deg, #6C63FF 0%, #4A3AFF 100%);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
-        font-size: 40px;
-        box-shadow: 0 10px 25px rgba(56, 178, 172, 0.4);
+        color: white !important;
+        font-size: 35px;
+        box-shadow: 0 10px 25px rgba(108, 99, 255, 0.3);
         cursor: pointer;
         z-index: 9999;
-        border: 3px solid white;
-        text-decoration: none;
+        border: 2px solid #FFFFFF;
+        text-decoration: none !important;
     }
 
-    /* עיצוב האייקונים בתחתית - צבעוניים ומעוגלים */
+    /* כרטיסיות אייקונים בתחתית - גווני לילך אחידים */
     .icon-card {
-        background: #F1F5F9;
-        border-radius: 25px;
-        padding: 15px;
+        background: #F8F7FF;
+        border-radius: 20px;
+        padding: 18px;
         text-align: center;
+        border: 1px solid #E9E4FF;
         transition: 0.3s;
-        border: 2px solid transparent;
     }
-    .icon-card:hover { transform: translateY(-5px); border-color: #38B2AC; background: white; }
+    .icon-card:hover { background: #EEECFF; border-color: #6C63FF; }
 
-    /* הסתרת אלמנטים מיותרים */
+    /* הסתרת כותרות מערכת של Streamlit */
     header, footer { visibility: hidden; }
+    .css-1rs6os {display: none;} /* מסתיר את הפס המעצבן בצד */
     </style>
     
-    <a href="#add-transaction" class="fab-button">+</a>
+    <a href="#add-data" class="fab-button">+</a>
     """, unsafe_allow_html=True)
 
 # --- כותרת ראשית ---
-st.markdown('<h1 style="text-align: center; font-size: 40px; color: #2C7A7B;">העושר שלי ✨</h1>', unsafe_allow_html=True)
-st.markdown('<p style="text-align: center; color: #4A5568;">הדרך הבטוחה לשפע כלכלי</p>', unsafe_allow_html=True)
+st.markdown('<h1 style="text-align: center; font-size: 38px; color: #4A3AFF; letter-spacing: 1px;">העושר שלי ✨</h1>', unsafe_allow_html=True)
+st.markdown('<p style="text-align: center; color: #716B94; font-size: 16px; margin-top: -10px;">ניהול פיננסי חכם ומכבד</p>', unsafe_allow_html=True)
 
 # --- דשבורד כסף ---
 st.markdown("<br>", unsafe_allow_html=True)
-col1, col2, col3 = st.columns(3)
-with col1: st.metric("מזומן ביד 💵", "$2,450")
-with col2: st.metric("בבנק BofA 🏦", "$4,100")
-with col3: st.metric("חוב אשראי 💳", "$1,200-")
+c1, c2, c3 = st.columns(3)
+with c1: st.metric("מזומן (Cash)", "$2,450")
+with c2: st.metric("בנק (BofA)", "$4,100")
+with c3: st.metric("אשראי (Amex)", "$1,200-")
 
-# מד התקדמות (טורקיז)
-st.markdown("<br>### 🎯 היעד: $20,000", unsafe_allow_html=True)
+# מד התקדמות (סגול)
+st.markdown("<br>### 🎯 יעד חיסכון: $20,000", unsafe_allow_html=True)
 st.progress(5800/20000)
-st.write(f"נחסכו: **$5,800** | נותרו **10 ימים** לסבב")
+st.write(f"נחסכו עד כה: **$5,800** | **10 ימים** לסיום הסבב")
 
-st.markdown("---")
+st.markdown("<br><hr style='border: 0.5px solid #E9E4FF;'><br>", unsafe_allow_html=True)
 
-# --- עוגות נתונים ---
+# --- עוגות נתונים (גווני סגול בלבד) ---
 col_g1, col_g2 = st.columns(2)
+purple_scale = ['#4A3AFF', '#6C63FF', '#8E86FF', '#B0AAFF', '#D2CFFF']
+
 with col_g1:
     df1 = pd.DataFrame({'קטגוריה': ['רכב', 'מזון', 'צדקה', 'דירה', 'כללי'], 'סכום': [800, 300, 750, 1200, 250]})
-    fig1 = px.pie(df1, values='סכום', names='קטגוריה', hole=0.6, title="הוצאות הסבב")
-    fig1.update_traces(marker=dict(colors=['#38B2AC', '#4FD1C5', '#81E6D9', '#B2F5EA', '#2D3748']))
+    fig1 = px.pie(df1, values='סכום', names='קטגוריה', hole=0.7, title="הוצאות נוכחיות")
+    fig1.update_traces(marker=dict(colors=purple_scale), textinfo='none')
+    fig1.update_layout(showlegend=True, margin=dict(t=30, b=0, l=0, r=0))
     st.plotly_chart(fig1, use_container_width=True)
+
 with col_g2:
     df2 = pd.DataFrame({'קטגוריה': ['רכב', 'מזון', 'צדקה', 'דירה', 'כללי'], 'סכום': [1500, 500, 1500, 1200, 400]})
-    fig2 = px.pie(df2, values='סכום', names='קטגוריה', hole=0.6, title="ממוצע היסטורי")
+    fig2 = px.pie(df2, values='סכום', names='קטגוריה', hole=0.7, title="ממוצע תקופתי")
+    fig2.update_traces(marker=dict(colors=['#D2CFFF', '#B0AAFF', '#8E86FF', '#6C63FF', '#4A3AFF']), textinfo='none')
+    fig2.update_layout(showlegend=True, margin=dict(t=30, b=0, l=0, r=0))
     st.plotly_chart(fig2, use_container_width=True)
 
-# --- אזור הוספת תנועה (נפתח בלחיצה על הפלוס או כאן) ---
-st.markdown('<div id="add-transaction"></div>', unsafe_allow_html=True)
-with st.expander("➕ הוספת תנועה חדשה (הכנסה/הוצאה)", expanded=False):
-    st.write("### פרטי הפעולה")
-    mode = st.radio("סוג", ["הוצאה 💸", "הכנסה 💰"], horizontal=True)
+# --- אזור הוספת תנועה ---
+st.markdown('<div id="add-data"></div>', unsafe_allow_html=True)
+with st.expander("📝 רישום תנועה חדשה", expanded=False):
+    st.markdown("<div style='padding: 10px;'>", unsafe_allow_html=True)
+    mode = st.radio("סוג הפעולה", ["הוצאה 💸", "הכנסה 💰"], horizontal=True)
     
-    c1, c2 = st.columns(2)
-    with c1:
-        wallet = st.selectbox("אמצעי תשלום", ["מזומן 💵", "Bank of America 🏦", "American Express 💳", "Food Stamps 🍎", "Pepper 🌶️"])
-        amount = st.number_input("סכום ($)", min_value=0.0)
-    with c2:
+    ca, cb = st.columns(2)
+    with ca:
+        wallet = st.selectbox("מקור כספי", ["מזומן", "BofA", "Amex", "Food Stamps", "Pepper"])
+        amount = st.number_input("סכום בשפע ($)", min_value=0.0)
+    with cb:
         date = st.date_input("תאריך", datetime.now())
         if "הוצאה" in mode:
-            cat = st.selectbox("קטגוריה", ["צדקה ❤️", "רכב 🚗", "מזון 🥗", "דירה 🏠", "כללי 📦"])
+            cat = st.selectbox("לאן הכסף הלך?", ["צדקה", "רכב", "מזון", "דירה", "כללי"])
         else:
-            cat = st.selectbox("מקור", ["משכורת ישראל 🇮🇱", "משכורת רחלי 👩‍💻", "כללי ישראל 👴", "עצמאי רחלי ✍️", "כללי רחלי 🌍"])
+            cat = st.selectbox("מאיפה הכסף הגיע?", ["משכורת ישראל", "משכורת רחלי", "כללי ישראל", "עצמאי רחלי", "כללי רחלי"])
     
-    # חישוב פוד סטאמפס אוטומטי
-    if "Food Stamps" in wallet:
-        st.info(f"מחשב 75% ליתרה: ${amount * 0.75:.2f}")
-
-    if st.button("שמור נתונים ✨"):
+    if st.button("אישור ושמירה ✨"):
         st.balloons()
-        st.success("נשמר בהצלחה!")
+        st.success("הנתונים עודכנו במערכת.")
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# --- אייקונים צבעוניים בתחתית ---
-st.markdown("<br>### 📂 קטגוריות", unsafe_allow_html=True)
-row1 = st.columns(5)
-# צבעים לאייקונים: רכב (כחול), מזון (כתום), צדקה (ורוד), דירה (ירוק), כללי (סגול)
-cat_icons = [("🚗", "רכב", "#EBF8FF"), ("🥗", "מזון", "#FFFAF0"), ("❤️", "צדקה", "#FFF5F5"), ("🏠", "דירה", "#F0FFF4"), ("📦", "כללי", "#FAF5FF")]
+# --- אייקונים בתחתית - כולם בגוון סגול אחיד ---
+st.markdown("<br>### 📂 קטגוריות מרכזיות", unsafe_allow_html=True)
+row_icons = st.columns(5)
+cats = [("🚗", "רכב"), ("🥗", "מזון"), ("❤️", "צדקה"), ("🏠", "דירה"), ("📦", "כללי")]
 
-for i, (icon, name, color) in enumerate(cat_icons):
-    with row1[i]:
-        st.markdown(f'<div class="icon-card" style="background-color: {color}; border-bottom: 5px solid {color.replace("F", "E")}"><div style="font-size:35px;">{icon}</div><div style="font-size:16px; color:#2D3748;">{name}</div></div>', unsafe_allow_html=True)
+for i, (icon, name) in enumerate(cats):
+    with row_icons[i]:
+        st.markdown(f'''
+            <div class="icon-card">
+                <div style="font-size:30px; margin-bottom:5px;">{icon}</div>
+                <div style="font-size:14px; color:#4A3AFF; font-weight:700;">{name}</div>
+            </div>
+        ''', unsafe_allow_html=True)
 
-# --- תפריט צד (Sidebar) ---
+# --- סרגל צד (Sidebar) ---
 with st.sidebar:
-    st.markdown("## ⚙️ הגדרות")
-    st.number_input("יעד חיסכון סופי ($)", value=20000)
+    st.markdown("<h2 style='color: #4A3AFF;'>⚙️ ניהול חשבון</h2>", unsafe_allow_html=True)
+    st.number_input("עדכון יעד חיסכון", value=20000)
     st.markdown("---")
-    st.subheader("🤖 הבוט של רחלי")
-    st.info("רחלי, שמת לב שהחודש הצלחת לחסוך יותר במזון? כל הכבוד!")
+    st.info("💡 רחלי, המראה הסגול נותן שקט נפשי לניהול הכסף. מה דעתך?")
