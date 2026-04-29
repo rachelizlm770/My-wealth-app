@@ -3,95 +3,66 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# הגדרות דף
+# הגדרות דף - ניקוי מוחלט מהשורש
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# --- ניהול מצב תפריט ---
-if 'menu_open' not in st.session_state:
-    st.session_state.menu_open = False
-
-# --- הזרקת CSS ו-HTML לתווית אקטיבית באמת ---
+# --- הזרקת CSS לעיצוב יוקרתי ונקי ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
     
-    /* הסתרת רכיבי מערכת */
-    [data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"] {
+    /* 1. הסתרה מוחלטת של רכיבי מערכת ושאריות כפתורים */
+    [data-testid="stHeader"], [data-testid="stSidebarCollapsedControl"] {
         display: none !important;
     }
     .stApp { background-color: #FFFFFF !important; }
     * { font-family: 'Assistant', sans-serif; direction: rtl; }
 
-    /* תווית ימנית מעוצבת */
-    .side-label-right {
-        position: fixed;
-        top: 25%;
-        right: 0;
-        background-color: #3D5A5A;
-        color: white;
-        padding: 20px 12px;
-        border-radius: 15px 0 0 15px;
-        z-index: 9999;
-        writing-mode: vertical-rl;
-        text-orientation: mixed;
-        font-weight: 600;
-        font-size: 14px;
-        box-shadow: -2px 4px 15px rgba(0,0,0,0.15);
-        cursor: pointer;
-    }
-
-    /* כפתור פלוס דומיננטי בשמאל */
-    .stButton > button[key="plus_main"] {
+    /* 2. כפתור פלוס דומיננטי וקבוע בשמאל */
+    .stButton > button {
         position: fixed !important;
-        bottom: 40px !important;
-        left: 40px !important;
-        width: 80px !important;
-        height: 80px !important;
+        bottom: 30px !important;
+        left: 30px !important;
+        width: 75px !important;
+        height: 75px !important;
         background-color: #3D5A5A !important;
         color: white !important;
         border-radius: 50% !important;
         border: 4px solid white !important;
-        font-size: 45px !important;
-        box-shadow: 0 12px 30px rgba(61, 90, 90, 0.3) !important;
-        z-index: 10000 !important;
+        font-size: 40px !important;
+        box-shadow: 0 10px 25px rgba(61, 90, 90, 0.4) !important;
+        z-index: 100000 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
-    /* כפתור שקוף לחלוטין מעל התווית הימנית */
-    .stButton > button[key="trigger_label"] {
-        position: fixed !important;
-        top: 25% !important;
-        right: 0 !important;
-        width: 50px !important;
-        height: 150px !important;
-        background: transparent !important;
-        border: none !important;
-        color: transparent !important;
-        z-index: 10001 !important;
+    /* 3. כרטיסיות נתונים נקיות (ללא ריבועים מעליהן) */
+    div[data-testid="stMetric"] {
+        background: #F9FBFB !important;
+        border-radius: 20px !important;
+        border-right: 10px solid #3D5A5A !important;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.02) !important;
+        padding: 20px !important;
+    }
+    div[data-testid="stMetricValue"] > div { color: #2A3F3F !important; font-weight: 700 !important; }
+
+    /* 4. עיצוב חלון מרחף */
+    div[data-testid="stDialog"] { border-radius: 25px !important; direction: rtl !important; }
+    
+    /* 5. עיצוב תפריט הצד (Sidebar) שלא יצור קו */
+    [data-testid="stSidebar"] {
+        border-left: none !important;
+        background-color: #F8FBFB !important;
     }
     </style>
-    
-    <div class="side-label-right">⚙️ הגדרות וכלים</div>
     """, unsafe_allow_html=True)
 
 # --- חלונות מרחפים ---
 
-@st.dialog("שורת כלים והגדרות")
-def show_tools_menu():
-    st.markdown("### 🛠️ תפריט ניהול")
-    choice = st.radio("בחר פעולה:", ["🤖 בוט פיננסי", "📜 היסטוריה", "📦 ארכיון", "⚙️ הגדרות יעד"], label_visibility="collapsed")
-    st.markdown("---")
-    if choice == "⚙️ הגדרות יעד":
-        st.number_input("עדכון יעד חיסכון", value=20000)
-    elif choice == "🤖 בוט פיננסי":
-        st.info("רחלי, אני כאן לנתח את הנתונים שלך.")
-    
-    if st.button("סגור", use_container_width=True):
-        st.session_state.menu_open = False
-        st.rerun()
-
 @st.dialog("דיווח תנועה חדשה")
 def show_transaction_dialog():
-    st.markdown("### 📝 פרטי הפעולה")
+    st.markdown("<h3 style='color: #3D5A5A;'>📝 פרטי הפעולה</h3>", unsafe_allow_html=True)
     t_mode = st.radio("סוג פעולה", ["הוצאה", "הכנסה"], horizontal=True)
     ca, cb = st.columns(2)
     with ca:
@@ -107,20 +78,15 @@ def show_transaction_dialog():
         st.balloons()
         st.rerun()
 
-# --- הפעלה לפי לחיצה ---
-if st.session_state.menu_open:
-    show_tools_menu()
-
-# --- כפתורי הפעלה (שקופים וצפים) ---
-
-# כפתור התווית הימנית
-if st.button("", key="trigger_label"):
-    st.session_state.menu_open = True
-    st.rerun()
-
-# כפתור הפלוס
-if st.button("+", key="plus_main"):
-    show_transaction_dialog()
+# --- תפריט צדדי (במקום תווית שלא עבדה) ---
+with st.sidebar:
+    st.markdown("<h2 style='color: #3D5A5A;'>⚙️ הגדרות וכלים</h2>", unsafe_allow_html=True)
+    st.markdown("---")
+    st.write("🤖 בוט פיננסי")
+    st.write("📜 היסטוריה")
+    st.write("📦 ארכיון")
+    st.number_input("יעד חיסכון", value=20000)
+    st.info("רחלי, תשתמשי בחץ הקטן בפינה כדי לפתוח/לסגור אותי.")
 
 # --- תוכן דף הבית ---
 st.markdown('<h1 style="text-align: center; color: #2A3F3F; font-size: 32px;">Wealth Management</h1>', unsafe_allow_html=True)
@@ -150,6 +116,10 @@ with g_col2:
     fig2.update_traces(marker=dict(colors=colors[::-1]), textinfo='label+value+percent', texttemplate='%{label}<br>$%{value}<br>%{percent}', textposition='outside')
     fig2.update_layout(showlegend=False, margin=dict(t=50, b=50, l=50, r=50), height=380)
     st.plotly_chart(fig2, use_container_width=True)
+
+# --- כפתור הפלוס הצף (היחיד) ---
+if st.button("+"):
+    show_transaction_dialog()
 
 # שורת קטגוריות
 st.markdown("<br>", unsafe_allow_html=True)
