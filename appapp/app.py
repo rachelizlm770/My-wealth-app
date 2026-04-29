@@ -3,139 +3,117 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# הגדרות דף - נקי ומותאם למובייל
-st.set_page_config(page_title="Rachel's Wealth", layout="wide", initial_sidebar_state="collapsed")
+# הגדרות דף
+st.set_page_config(page_title="העושר שלי", layout="wide", initial_sidebar_state="collapsed")
 
-# --- עיצוב "יוקרה רכה": לילך, טורקיז ופנינה ---
+# --- עיצוב טורקיז-מנטה רך וברור ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600&display=swap');
-    html, body, [class*="css"] { font-family: 'Assistant', sans-serif; text-align: right; direction: rtl; }
+    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap');
     
-    .stApp { background-color: #F7F3FF; } /* רקע לילך בהיר מאוד */
+    /* רקע ופונט כללי */
+    * { font-family: 'Assistant', sans-serif; direction: rtl; text-align: right; }
+    .stApp { background: #E6FFFA; } /* רקע מנטה בהיר מאוד */
     
-    /* כרטיסיות לבנות מעוגלות */
-    .card { 
-        background: white; 
-        padding: 20px; 
-        border-radius: 25px; 
-        box-shadow: 0 8px 20px rgba(108, 99, 255, 0.05);
-        margin-bottom: 15px;
-        border: 1px solid #EBE3FF;
+    /* כרטיסיות לבנות ורכות */
+    div[data-testid="stMetric"], .main-card, div[data-testid="stExpander"] {
+        background-color: white !important;
+        border-radius: 35px !important;
+        border: 2px solid #B2F5EA !important;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.02) !important;
+        padding: 20px !important;
     }
     
-    /* כפתורים מעוצבים - סגול ממריץ */
-    .stButton>button { 
-        border-radius: 18px; 
-        background: linear-gradient(135deg, #8E78FF 0%, #6C63FF 100%); 
-        color: white; 
-        font-weight: 600; 
-        border: none;
-        transition: 0.3s;
-    }
+    /* טקסטים כהים וברורים */
+    h1, h2, h3, p, span, label { color: #234E52 !important; font-weight: 700 !important; }
+    div[data-testid="stMetricValue"] > div { color: #2C7A7B !important; font-size: 35px !important; }
     
-    /* כפתור ה"+" הגדול */
-    .plus-btn button {
-        background: #38B2AC !important; /* טורקיז לכפתור ההוספה */
-        font-size: 20px !important;
+    /* כפתור פלוס צף */
+    .fab-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 100;
+    }
+    .stButton>button {
+        background: #319795 !important;
+        color: white !important;
+        border-radius: 50% !important;
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 30px !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+        border: none !important;
     }
 
     /* אייקונים בתחתית */
-    .icon-card {
+    .icon-box {
         background: white;
-        border-radius: 20px;
+        border-radius: 30px;
         padding: 15px;
         text-align: center;
-        border: 2px solid #F0EBFF;
-        transition: 0.2s;
+        border: 2px solid #81E6D9;
+        transition: 0.3s;
     }
-    .icon-card:hover { border-color: #8E78FF; background: #F9F8FF; }
-    
-    /* כותרות */
-    h1, h2, h3 { color: #4A3AFF; }
+    .icon-box:hover { transform: translateY(-5px); background: #F0FFF4; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- לוגיקה של זמנים ---
-cycle_start = datetime(2026, 4, 15) 
-days_passed = (datetime.now() - cycle_start).days
-days_left = 14 - (days_passed % 14)
+# כותרת
+st.markdown('<h1 style="text-align: center; font-size: 40px;">העושר שלי ✨</h1>', unsafe_allow_html=True)
 
-# --- כותרת עליונה ---
-st.markdown('<h1 style="text-align: center;">העושר של רחלי 🦄</h1>', unsafe_allow_html=True)
-st.markdown(f'<p style="text-align: center; color: #6C63FF;">נותרו <b>{days_left} ימים</b> לסיום הסבב</p>', unsafe_allow_html=True)
-
-# --- דשבורד: איפה הכסף שלי? ---
-st.markdown("### 💰 מצב הקופות")
+# דשבורד כסף
 col1, col2, col3 = st.columns(3)
-with col1:
-    st.markdown('<div class="card"><p style="margin:0; font-size:14px; color:gray;">מזומן (Cash)</p><h2 style="margin:0;">$2,450</h2></div>', unsafe_allow_html=True)
-with col2:
-    st.markdown('<div class="card"><p style="margin:0; font-size:14px; color:gray;">בנק (BofA)</p><h2 style="margin:0;">$4,100</h2></div>', unsafe_allow_html=True)
-with col3:
-    st.markdown('<div class="card"><p style="margin:0; font-size:14px; color:gray;">אשראי (Amex)</p><h2 style="margin:0; color:#FF4B4B;">$1,200-</h2></div>', unsafe_allow_html=True)
+with col1: st.metric("מזומן (Cash) 💵", "$2,450")
+with col2: st.metric("בנק (BofA) 🏦", "$4,100")
+with col3: st.metric("אשראי (Amex) 💳", "$1,200-")
 
-# --- יעד החיסכון הגדול ---
-st.markdown("### 🎯 התקדמות ליעד ($20,000)")
+# מד התקדמות
+st.markdown("### 🎯 היעד: $20,000")
 st.progress(5800/20000)
-st.markdown('<p style="text-align: left; font-size:12px;">נחסכו עד כה: $5,800</p>', unsafe_allow_html=True)
+st.write(f"נחסכו: **$5,800** | עוד **10 ימים** לאיפוס")
 
 st.markdown("---")
 
-# --- כפתור הוספה (טורקיז בולט) ---
-st.markdown('<div class="plus-btn">', unsafe_allow_html=True)
-with st.expander("➕ הוספת פעולה (הכנסה / הוצאה)", expanded=False):
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    t_type = st.radio("מה קרה?", ["הוצאה 💸", "הכנסה 💰"], horizontal=True)
-    
-    c_a, c_b = st.columns(2)
-    with c_a:
-        t_wallet = st.selectbox("איך שילמתי/קיבלתי?", ["מזומן 💵", "Bank of America 🏦", "American Express 💳", "Food Stamps 🍎", "Pepper 🌶️"])
-        t_amount = st.number_input("סכום ($)", min_value=0.0)
-    with c_b:
-        t_date = st.date_input("מתי?", datetime.now())
-        if "הוצאה" in t_type:
-            t_cat = st.selectbox("קטגוריה", ["צדקה ❤️", "רכב 🚗", "מזון 🥗", "דירה 🏠", "כללי 📦"])
-        else:
-            t_cat = st.selectbox("מקור", ["משכורת ישראל 🇮🇱", "משכורת רחלי 👩‍💻", "כללי ישראל 👴", "עצמאי רחלי ✍️", "כללי רחלי 🌍"])
-    
-    t_note = st.text_input("פירוט קצר (על מה?)")
-    
-    # חישוב פוד סטאמפס אוטומטי
-    if "Food Stamps" in t_wallet:
-        st.info(f"מחשב 75% ליתרה: ${t_amount * 0.75:.2f}")
+# עוגות נתונים (החזרתי אותן!)
+col_g1, col_g2 = st.columns(2)
+with col_g1:
+    df1 = pd.DataFrame({'קטגוריה': ['רכב', 'מזון', 'צדקה', 'דירה', 'כללי'], 'סכום': [800, 300, 750, 1200, 250]})
+    fig1 = px.pie(df1, values='סכום', names='קטגוריה', hole=0.5, title="הוצאות הסבב")
+    fig1.update_traces(marker=dict(colors=['#319795', '#4FD1C5', '#81E6D9', '#B2F5EA', '#285E61']))
+    st.plotly_chart(fig1, use_container_width=True)
+with col_g2:
+    df2 = pd.DataFrame({'קטגוריה': ['רכב', 'מזון', 'צדקה', 'דירה', 'כללי'], 'סכום': [1500, 500, 1500, 1200, 400]})
+    fig2 = px.pie(df2, values='סכום', names='קטגוריה', hole=0.5, title="ממוצע היסטורי")
+    st.plotly_chart(fig2, use_container_width=True)
 
-    if st.button("שמור נתונים"):
+# כפתור הפלוס להוספה
+st.markdown('<div class="fab-container">', unsafe_allow_html=True)
+with st.expander("➕ הוספת תנועה", expanded=False):
+    t_mode = st.radio("סוג", ["הוצאה", "הכנסה"], horizontal=True)
+    t_wallet = st.selectbox("אמצעי תשלום", ["מזומן", "Bank of America", "American Express", "Food Stamps", "Pepper"])
+    t_amount = st.number_input("סכום ($)", min_value=0.0)
+    
+    if t_mode == "הוצאה":
+        t_cat = st.selectbox("קטגוריה", ["צדקה", "רכב", "מזון", "דירה", "כללי"])
+    else:
+        t_cat = st.selectbox("מקור", ["משכורת ישראל", "משכורת רחלי", "כללי ישראל", "עצמאי רחלי", "כללי רחלי"])
+    
+    if st.button("שמור"):
         st.balloons()
         st.success("נשמר!")
-    st.markdown('</div>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# --- גרפים להשוואה (ממוצע מול שבועיים) ---
-st.markdown("### 📊 השוואת הוצאות")
-g1, g2 = st.columns(2)
-with g1:
-    df_curr = pd.DataFrame({'Cat': ['רכב', 'מזון', 'צדקה', 'דירה', 'כללי'], 'Val': [800, 300, 750, 1200, 200]})
-    st.plotly_chart(px.pie(df_curr, values='Val', names='Cat', hole=0.6, title="בשבועיים האלו", color_discrete_sequence=px.colors.qualitative.Pastel), use_container_width=True)
-with g2:
-    df_avg = pd.DataFrame({'Cat': ['רכב', 'מזון', 'צדקה', 'דירה', 'כללי'], 'Val': [1500, 500, 1500, 1200, 400]})
-    st.plotly_chart(px.pie(df_avg, values='Val', names='Cat', hole=0.6, title="ממוצע היסטורי", color_discrete_sequence=px.colors.qualitative.Safe), use_container_width=True)
-
-# --- פירוט אייקונים מהיר ---
-st.markdown("### 📂 פירוט לפי קטגוריות")
-row1 = st.columns(5)
+# אייקונים בתחתית
+st.markdown("### 🔍 פירוט מהיר")
+rows = st.columns(5)
 cats = [("🚗", "רכב"), ("🥗", "מזון"), ("❤️", "צדקה"), ("🏠", "דירה"), ("📦", "כללי")]
 for i, (icon, name) in enumerate(cats):
-    with row1[i]:
-        st.markdown(f'<div class="icon-card"><div style="font-size:25px;">{icon}</div><div style="font-size:12px;">{name}</div></div>', unsafe_allow_html=True)
+    with rows[i]:
+        st.markdown(f'<div class="icon-box"><div style="font-size:30px;">{icon}</div><div style="font-size:14px;">{name}</div></div>', unsafe_allow_html=True)
 
-# --- תפריט צד (Sidebar) ---
+# תפריט צד
 with st.sidebar:
-    st.markdown("## 🤖 העוזר האישי")
-    st.info("רחלי, יש לך $2,450 במזומן. אולי כדאי לעשות Swap?")
-    st.markdown("---")
-    st.subheader("⚙️ הגדרות")
-    st.number_input("עדכון יעד חיסכון ($)", value=20000)
-    if st.button("📜 לצפייה בכל ההיסטוריה"):
-        st.write("כאן תופיע הטבלה המלאה")
-    
+    st.title("⚙️ הגדרות")
+    st.number_input("יעד חיסכון", value=20000)
+    st.info("🤖 רחלי, אל תשכחי לעשות Swap למזומן!")
