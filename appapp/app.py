@@ -3,17 +3,66 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# הגדרות דף - ניקוי מוחלט
+# הגדרות דף
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# --- פונקציות חלונות מרחפים ---
-@st.dialog("⚙️ הגדרות וכלים")
-def show_settings():
-    st.markdown("### 🛠️ תפריט ניהול")
-    st.write("🤖 בוט פיננסי | 📜 היסטוריה | 📦 ארכיון")
-    st.number_input("יעד חיסכון חודשי", value=20000)
-    if st.button("סגור"):
-        st.rerun()
+# --- הזרקת CSS לניקוי מוחלט ועיצוב יוקרתי ---
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
+    
+    /* 1. הסתרת רכיבי מערכת ושאריות כפתורים לבנים */
+    [data-testid="stHeader"], [data-testid="stSidebarCollapsedControl"] { display: none !important; }
+    .stApp { background-color: #FFFFFF !important; }
+    * { font-family: 'Assistant', sans-serif; direction: rtl; }
+    
+    /* ביטול הריבועים הלבנים המציקים */
+    .stButton > button {
+        border: none !important;
+        background: transparent !important;
+        color: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+        position: absolute !important;
+    }
+
+    /* 2. עיצוב כפתור הפלוס העגול והלחיץ */
+    .floating-plus {
+        position: fixed; bottom: 35px; left: 35px;
+        width: 75px; height: 75px; background-color: #008080;
+        color: white !important; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 40px; box-shadow: 0 10px 30px rgba(0, 128, 128, 0.4);
+        z-index: 10000; border: 4px solid white; cursor: pointer;
+        text-decoration: none !important;
+    }
+
+    /* 3. עיצוב ה-Sidebar (הגדרות) ללא קווים */
+    [data-testid="stSidebar"] {
+        border-left: none !important;
+        background-color: #F8FBFB !important;
+        box-shadow: -5px 0 15px rgba(0,0,0,0.05) !important;
+    }
+
+    /* 4. כרטיסיות נתונים */
+    div[data-testid="stMetric"] {
+        background: #F4FBFB !important; border-radius: 20px !important;
+        border-right: 8px solid #008080 !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.03) !important;
+    }
+    div[data-testid="stMetricValue"] > div { color: #004D4D !important; font-weight: 700 !important; }
+
+    /* 5. שורת אייקונים בוגרת */
+    .icon-card {
+        text-align: center; background: #FAFAFA;
+        padding: 20px; border-radius: 18px; border: 1px solid #E0EAEA;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- חלונות מרחפים ותפריטים ---
 
 @st.dialog("📝 תנועה חדשה")
 def show_transaction():
@@ -25,98 +74,28 @@ def show_transaction():
         t_wallet = st.selectbox("חשבון", ["מזומן", "BofA", "Amex", "Pepper"])
     with cb:
         t_date = st.date_input("תאריך", datetime.now())
-        if t_mode == "הוצאה":
-            t_cat = st.selectbox("קטגוריה", ["צדקה", "רכב", "מזון", "דירה", "כללי"])
-        else:
-            t_cat = st.selectbox("מקור", ["משכורת", "עצמאי", "אחר"])
-    
-    st.text_area("לפרט כאן:", placeholder="הוסיפי תיאור לפעולה...")
-    
-    if st.button("אישור ושמירה", use_container_width=True):
+        t_cat = st.selectbox("קטגוריה", ["צדקה", "רכב", "מזון", "דירה", "כללי"])
+    st.text_area("פירוט:", placeholder="לפרט כאן...")
+    if st.button("אישור ושמירה", use_container_width=True, key="save_real"):
         st.balloons()
         st.rerun()
 
-# --- הזרקת CSS ועיצוב הכפתורים ---
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
-    
-    /* הסתרת רכיבי מערכת */
-    [data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"] {
-        display: none !important;
-    }
-    .stApp { background-color: #FFFFFF !important; }
-    * { font-family: 'Assistant', sans-serif; direction: rtl; }
-
-    /* עיצוב ויזואלי לתווית הימנית */
-    .side-label-ui {
-        position: fixed; top: 25%; right: 0;
-        background-color: #008080; color: white;
-        padding: 20px 12px; border-radius: 15px 0 0 15px;
-        z-index: 999; writing-mode: vertical-rl;
-        text-orientation: mixed; font-weight: 600; font-size: 14px;
-        box-shadow: -2px 4px 15px rgba(0,0,0,0.2);
-        pointer-events: none;
-    }
-
-    /* עיצוב ויזואלי לפלוס */
-    .fab-plus-ui {
-        position: fixed; bottom: 35px; left: 35px;
-        width: 75px; height: 75px;
-        background-color: #008080; color: white !important;
-        border-radius: 50%; display: flex;
-        align-items: center; justify-content: center;
-        font-size: 45px; box-shadow: 0 10px 30px rgba(0, 128, 128, 0.4);
-        z-index: 999; border: 4px solid white;
-        pointer-events: none;
-    }
-
-    /* הכפתורים האמיתיים - שקופים מעל העיצוב */
-    div.stButton > button[key="btn_settings"] {
-        position: fixed !important; top: 25% !important; right: 0 !important;
-        width: 45px !important; height: 140px !important;
-        background: transparent !important; border: none !important;
-        color: transparent !important; z-index: 1000 !important;
-    }
-
-    div.stButton > button[key="btn_plus"] {
-        position: fixed !important; bottom: 35px !important; left: 35px !important;
-        width: 75px !important; height: 75px !important;
-        background: transparent !important; border: none !important;
-        color: transparent !important; z-index: 1000 !important;
-        border-radius: 50% !important;
-    }
-
-    /* ניקוי שאריות כפתורים וריבועים */
-    .stButton > button:focus { outline: none !important; box-shadow: none !important; }
-
-    /* כרטיסיות נתונים */
-    div[data-testid="stMetric"] {
-        background: #F4FBFB !important; border-radius: 20px !important;
-        border-right: 8px solid #008080 !important;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.03) !important;
-    }
-    div[data-testid="stMetricValue"] > div { color: #004D4D !important; font-weight: 700 !important; }
-
-    /* אייקונים בתחתית */
-    .icon-card {
-        text-align: center; background: #FAFAFA;
-        padding: 20px; border-radius: 18px; border: 1px solid #E0EAEA;
-    }
-    </style>
-    
-    <div class="side-label-ui">⚙️ הגדרות וכלים</div>
-    <div class="fab-plus-ui">+</div>
-    """, unsafe_allow_html=True)
-
-# --- כפתורי הפעלה (שקופים - יושבים בדיוק מעל העיצוב) ---
-if st.button(" ", key="btn_settings"):
-    show_settings()
-
-if st.button("  ", key="btn_plus"):
-    show_transaction()
+# --- תפריט צד (Sidebar) מעוצב ונקי ---
+with st.sidebar:
+    st.markdown("<h2 style='color: #008080;'>⚙️ כלים והגדרות</h2>", unsafe_allow_html=True)
+    st.markdown("---")
+    if st.button("🤖 בוט פיננסי", use_container_width=True, key="bot_btn"): st.write("הבוט בדרך...")
+    if st.button("📜 היסטוריה", use_container_width=True, key="hist_btn"): st.write("טוען היסטוריה...")
+    st.markdown("---")
+    st.number_input("יעד חיסכון חודשי", value=20000)
 
 # --- תוכן דף הבית ---
+
+# כפתור הפלוס הצף (משתמש ב-st.button שמוחבא מאחורי העיצוב)
+st.markdown('<div class="floating-plus" onclick="document.querySelector(\'button[key=plus_trigger]\').click()">+</div>', unsafe_allow_html=True)
+if st.button(" ", key="plus_trigger"):
+    show_transaction()
+
 st.markdown('<h1 style="text-align: center; color: #004D4D; font-size: 34px;">Wealth Management</h1>', unsafe_allow_html=True)
 
 # יעד חיסכון
