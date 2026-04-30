@@ -3,64 +3,93 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# הגדרות דף
+# הגדרות דף - ניקוי מוחלט
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# --- הזרקת CSS לעיצוב יוקרתי ומניעת הריבועים למעלה ---
+# --- הזרקת CSS ו-HTML: העלמת הריבועים והחזרת העיצוב ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
     
-    /* 1. ניקוי רכיבי מערכת */
+    /* 1. הסתרה מוחלטת של רכיבי מערכת */
     [data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"] {
         display: none !important;
     }
     .stApp { background-color: #FFFFFF !important; }
     * { font-family: 'Assistant', sans-serif; direction: rtl; }
 
-    /* 2. כפתור פלוס עגול בשמאל */
-    button[key="final_plus_btn"] {
+    /* 2. העלמה מוחלטת של הריבועים הלבנים של כל הכפתורים בדף */
+    .stButton > button {
+        background: transparent !important;
+        border: none !important;
+        color: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        height: 0px !important;
+        width: 0px !important;
+        min-height: 0px !important;
+    }
+
+    /* 3. עיצוב ויזואלי בלבד (לא לחיץ - רק ליופי) */
+    .fab-plus-visual {
+        position: fixed;
+        bottom: 35px;
+        left: 35px;
+        width: 75px;
+        height: 75px;
+        background-color: #008080;
+        color: white !important;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 45px;
+        box-shadow: 0 10px 30px rgba(0, 128, 128, 0.4);
+        z-index: 999;
+        border: 4px solid white;
+    }
+
+    .side-label-visual {
+        position: fixed;
+        top: 25%;
+        right: 0;
+        background-color: #008080;
+        color: white;
+        padding: 20px 12px;
+        border-radius: 15px 0 0 15px;
+        z-index: 999;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: -2px 4px 15px rgba(0,0,0,0.2);
+    }
+
+    /* 4. הכפתורים האמיתיים - הפיכה לשקופים ומיקום מדויק מעל הויזואל */
+    button[key="real_plus_btn"] {
         position: fixed !important;
         bottom: 35px !important;
         left: 35px !important;
         width: 75px !important;
         height: 75px !important;
-        background-color: #008080 !important;
-        color: white !important;
-        border-radius: 50% !important;
-        border: 4px solid white !important;
-        font-size: 40px !important;
-        box-shadow: 0 10px 30px rgba(0, 128, 128, 0.4) !important;
-        z-index: 1000000 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        z-index: 1000 !important;
+        background: transparent !important;
+        color: transparent !important;
+        cursor: pointer !important;
+        display: block !important;
     }
 
-    /* 3. תווית הגדרות ימנית */
-    button[key="final_settings_btn"] {
+    button[key="real_settings_btn"] {
         position: fixed !important;
         top: 25% !important;
         right: 0 !important;
         width: 45px !important;
         height: 140px !important;
-        background-color: #008080 !important;
-        color: white !important;
-        border-radius: 15px 0 0 15px !important;
-        writing-mode: vertical-rl !important;
-        text-orientation: mixed !important;
-        z-index: 1000000 !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-        border: none !important;
-        box-shadow: -2px 4px 15px rgba(0,0,0,0.15) !important;
-    }
-
-    /* 4. מניעת הופעת ריבועים לבנים בראש העמוד */
-    .stButton {
-        line-height: 0;
-        margin: 0;
-        padding: 0;
+        z-index: 1000 !important;
+        background: transparent !important;
+        color: transparent !important;
+        cursor: pointer !important;
+        display: block !important;
     }
 
     /* 5. כרטיסיות נתונים */
@@ -81,16 +110,19 @@ st.markdown("""
         border: 1px solid #E0EAEA;
     }
     </style>
+    
+    <div class="side-label-visual">⚙️ הגדרות וכלים</div>
+    <div class="fab-plus-visual">+</div>
     """, unsafe_allow_html=True)
 
-# --- פונקציות דיאלוג ---
+# --- חלונות מרחפים ---
 
 @st.dialog("הגדרות וכלים")
 def show_settings():
     st.markdown("### 🛠️ תפריט ניהול")
     st.write("🤖 בוט פיננסי | 📜 היסטוריה | 📦 ארכיון")
     st.number_input("יעד חיסכון חודשי", value=20000)
-    if st.button("סגור"): st.rerun()
+    if st.button("סגור", key="close_diag"): st.rerun()
 
 @st.dialog("תנועה חדשה")
 def show_transaction():
@@ -104,9 +136,16 @@ def show_transaction():
         t_date = st.date_input("תאריך", datetime.now())
         t_cat = st.selectbox("קטגוריה", ["צדקה", "רכב", "מזון", "דירה", "כללי"])
     st.text_area("פירוט:", placeholder="הוסיפי תיאור כאן...")
-    if st.button("אישור ושמירה", use_container_width=True):
+    if st.button("אישור ושמירה", key="confirm_btn"):
         st.balloons()
         st.rerun()
+
+# --- הכפתורים השקופים שמפעילים את הכל ---
+if st.button("", key="real_settings_btn"):
+    show_settings()
+
+if st.button("", key="real_plus_btn"):
+    show_transaction()
 
 # --- תוכן דף הבית ---
 st.markdown('<h1 style="text-align: center; color: #004D4D; font-size: 34px;">Wealth Management</h1>', unsafe_allow_html=True)
@@ -148,10 +187,3 @@ items = [("⊖", "רכב"), ("⊙", "מזון"), ("⊗", "צדקה"), ("⊘", "�
 for i, (sym, name) in enumerate(items):
     with row_icons[i]:
         st.markdown(f'<div class="icon-card"><div style="font-size:24px; color:#008080; margin-bottom:5px;">{sym}</div><div style="color:#004D4D; font-weight:700; font-size:13px;">{name}</div></div>', unsafe_allow_html=True)
-
-# --- כפתורי הפעלה בסוף הקוד (מונע הופעה למעלה) ---
-if st.button("⚙️ הגדרות וכלים", key="final_settings_btn"):
-    show_settings()
-
-if st.button("+", key="final_plus_btn"):
-    show_transaction()
