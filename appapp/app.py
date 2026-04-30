@@ -3,10 +3,10 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# הגדרות דף - ניקוי מהשורש
+# הגדרות דף - ניקוי מוחלט
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# --- הזרקת CSS ו-HTML ---
+# --- הזרקת CSS "The Perfect Fix" ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
@@ -18,75 +18,48 @@ st.markdown("""
     .stApp { background-color: #FFFFFF !important; }
     * { font-family: 'Assistant', sans-serif; direction: rtl; }
 
-    /* 2. תווית הגדרות ימנית אקטיבית (עיצוב בלבד) */
-    .side-label {
-        position: fixed;
-        top: 25%;
-        right: 0;
-        background-color: #008080;
-        color: white;
-        padding: 20px 12px;
-        border-radius: 15px 0 0 15px;
-        z-index: 999;
-        writing-mode: vertical-rl;
-        text-orientation: mixed;
-        font-weight: 600;
-        font-size: 14px;
-        box-shadow: -2px 4px 15px rgba(0,0,0,0.2);
-        pointer-events: none; /* הלחיצה עוברת לכפתור שמתחת */
-    }
-
-    /* 3. כפתור פלוס עגול (עיצוב בלבד) */
-    .fab-plus-visual {
-        position: fixed;
-        bottom: 35px;
-        left: 35px;
-        width: 75px;
-        height: 75px;
-        background-color: #008080;
-        color: white !important;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 45px;
-        box-shadow: 0 10px 30px rgba(0, 128, 128, 0.4);
-        z-index: 999;
-        border: 4px solid white;
-        pointer-events: none;
-    }
-
-    /* 4. הכפתורים האמיתיים - הפיכה לשקופים ומיקום מעל העיצוב */
-    /* כפתור הגדרות שקוף */
-    .stButton > button[key="settings_btn"] {
-        position: fixed !important;
-        top: 25% !important;
-        right: 0 !important;
-        width: 45px !important;
-        height: 140px !important;
-        background: transparent !important;
-        border: none !important;
-        color: transparent !important;
-        z-index: 1000 !important;
-        cursor: pointer !important;
-    }
-
-    /* כפתור פלוס שקוף */
-    .stButton > button[key="plus_btn"] {
+    /* 2. עיצוב כפתור הפלוס העגול - הזרקת עיצוב לכפתור קיים */
+    div.stButton > button[key="plus_btn"] {
         position: fixed !important;
         bottom: 35px !important;
         left: 35px !important;
         width: 75px !important;
         height: 75px !important;
-        background: transparent !important;
-        border: none !important;
-        color: transparent !important;
-        z-index: 1000 !important;
-        cursor: pointer !important;
+        background-color: #008080 !important;
+        color: white !important;
         border-radius: 50% !important;
+        border: 4px solid white !important;
+        font-size: 40px !important;
+        box-shadow: 0 10px 30px rgba(0, 128, 128, 0.4) !important;
+        z-index: 1000000 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        line-height: 0 !important;
+        padding-bottom: 8px !important; /* מרכז את הפלוס */
     }
 
-    /* 5. כרטיסיות נתונים */
+    /* 3. עיצוב תווית הגדרות ימנית - הזרקת עיצוב לכפתור קיים */
+    div.stButton > button[key="settings_btn"] {
+        position: fixed !important;
+        top: 25% !important;
+        right: 0 !important;
+        width: 45px !important;
+        height: 140px !important;
+        background-color: #008080 !important;
+        color: white !important;
+        border-radius: 15px 0 0 15px !important;
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important;
+        z-index: 1000000 !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        border: none !important;
+        box-shadow: -2px 4px 15px rgba(0,0,0,0.15) !important;
+        cursor: pointer !important;
+    }
+
+    /* 4. כרטיסיות נתונים */
     div[data-testid="stMetric"] {
         background: #F4FBFB !important;
         border-radius: 20px !important;
@@ -95,7 +68,7 @@ st.markdown("""
     }
     div[data-testid="stMetricValue"] > div { color: #004D4D !important; font-weight: 700 !important; }
 
-    /* 6. אייקונים בתחתית */
+    /* 5. אייקונים בתחתית */
     .icon-card {
         text-align: center;
         background: #FAFAFA;
@@ -103,18 +76,14 @@ st.markdown("""
         border-radius: 18px;
         border: 1px solid #E0EAEA;
     }
-    .icon-symbol { font-size: 24px; color: #008080; margin-bottom: 5px; }
-    .icon-name { color: #004D4D; font-weight: 700; font-size: 13px; }
     </style>
-
-    <div class="side-label">⚙️ הגדרות וכלים</div>
-    <div class="fab-plus-visual">+</div>
     """, unsafe_allow_html=True)
 
 # --- פונקציות חלונות מרחפים ---
 
 @st.dialog("הגדרות וכלים")
 def show_settings():
+    st.markdown("### 🛠️ תפריט ניהול")
     st.write("🤖 בוט פיננסי | 📜 היסטוריה | 📦 ארכיון")
     st.number_input("יעד חיסכון חודשי", value=20000)
     if st.button("סגור"):
@@ -132,20 +101,21 @@ def show_transaction():
         t_date = st.date_input("תאריך", datetime.now())
         t_cat = st.selectbox("קטגוריה", ["צדקה", "רכב", "מזון", "דירה", "כללי"])
     st.text_area("פירוט:", placeholder="הוסיפי תיאור כאן...")
-    if st.button("אישור ושמירה", key="save_btn"):
+    if st.button("אישור ושמירה", use_container_width=True):
         st.balloons()
         st.rerun()
 
-# --- כפתורי הפעלה (הם שקופים ויושבים מעל ה-HTML) ---
-if st.button(" ", key="settings_btn"):
+# --- כפתורי הפעלה (הם המעוצבים עכשיו) ---
+if st.button("⚙️ הגדרות וכלים", key="settings_btn"):
     show_settings()
 
-if st.button("  ", key="plus_btn"):
+if st.button("+", key="plus_btn"):
     show_transaction()
 
-# --- תוכן דף הבית (ללא שינוי) ---
+# --- תוכן דף הבית ---
 st.markdown('<h1 style="text-align: center; color: #004D4D; font-size: 34px;">Wealth Management</h1>', unsafe_allow_html=True)
 
+# יעד חיסכון
 col_goal = st.columns([1, 3, 1])
 with col_goal[1]:
     st.markdown("<p style='text-align:center; font-size:14px; color:#666;'>יעד חיסכון שנתי: <b>$12,450 / $20,000</b></p>", unsafe_allow_html=True)
@@ -181,4 +151,4 @@ row_icons = st.columns(5)
 items = [("⊖", "רכב"), ("⊙", "מזון"), ("⊗", "צדקה"), ("⊘", "דירה"), ("⊕", "כללי")]
 for i, (sym, name) in enumerate(items):
     with row_icons[i]:
-        st.markdown(f'<div class="icon-card"><div class="icon-symbol">{sym}</div><div class="icon-name">{name}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="icon-card"><div style="font-size:24px; color:#008080; margin-bottom:5px;">{sym}</div><div style="color:#004D4D; font-weight:700; font-size:13px;">{name}</div></div>', unsafe_allow_html=True)
