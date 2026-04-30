@@ -2,136 +2,118 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import plotly.express as px
+import os
 
 # הגדרות דף
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# --- הזרקת CSS לניקוי מוחלט ועיצוב יוקרתי ---
+# --- פונקציות לניהול נתונים ---
+DATA_FILE = "transactions.csv"
+
+def load_data():
+    if os.path.exists(DATA_FILE):
+        return pd.read_csv(DATA_FILE)
+    return pd.DataFrame(columns=["date", "type", "amount", "wallet", "category", "description"])
+
+def save_data(df):
+    df.to_csv(DATA_FILE, index=False)
+
+# טעינת הנתונים בתחילת הריצה
+if 'df' not in st.session_state:
+    st.session_state.df = load_data()
+
+# --- הזרקת CSS (אותו עיצוב יפה שלך עם תיקונים קלים) ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
-    
-    /* 1. הסתרת רכיבי מערכת ושאריות כפתורים לבנים */
-    [data-testid="stHeader"], [data-testid="stSidebarCollapsedControl"] { display: none !important; }
+    [data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"] { display: none !important; }
     .stApp { background-color: #FFFFFF !important; }
     * { font-family: 'Assistant', sans-serif; direction: rtl; }
     
-    /* ביטול הריבועים הלבנים המציקים */
-    .stButton > button {
-        border: none !important;
-        background: transparent !important;
-        color: transparent !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        width: 0 !important;
-        height: 0 !important;
-        position: absolute !important;
-    }
+    /* העלמת ריבועי כפתורים ברירת מחדל */
+    .stButton > button { background: transparent !important; border: none !important; color: transparent !important; box-shadow: none !important; padding: 0 !important; height: 0px !important; width: 0px !important; }
 
-    /* 2. עיצוב כפתור הפלוס העגול והלחיץ */
-    .floating-plus {
-        position: fixed; bottom: 35px; left: 35px;
-        width: 75px; height: 75px; background-color: #008080;
-        color: white !important; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 40px; box-shadow: 0 10px 30px rgba(0, 128, 128, 0.4);
-        z-index: 10000; border: 4px solid white; cursor: pointer;
-        text-decoration: none !important;
-    }
+    /* עיצוב כפתור הפלוס וההגדרות */
+    .fab-plus-visual { position: fixed; bottom: 35px; left: 35px; width: 70px; height: 70px; background-color: #008080; color: white !important; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; z-index: 999; border: 4px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    .side-label-visual { position: fixed; top: 25%; right: 0; background-color: #008080; color: white; padding: 15px 8px; border-radius: 10px 0 0 10px; z-index: 999; writing-mode: vertical-rl; font-weight: 600; }
 
-    /* 3. עיצוב ה-Sidebar (הגדרות) ללא קווים */
-    [data-testid="stSidebar"] {
-        border-left: none !important;
-        background-color: #F8FBFB !important;
-        box-shadow: -5px 0 15px rgba(0,0,0,0.05) !important;
-    }
+    /* שכבת הכפתורים האמיתית */
+    button[key="real_plus_btn"] { position: fixed !important; bottom: 35px !important; left: 35px !important; width: 70px !important; height: 70px !important; z-index: 1000 !important; cursor: pointer !important; }
+    button[key="real_settings_btn"] { position: fixed !important; top: 25% !important; right: 0 !important; width: 40px !important; height: 120px !important; z-index: 1000 !important; cursor: pointer !important; }
 
-    /* 4. כרטיסיות נתונים */
-    div[data-testid="stMetric"] {
-        background: #F4FBFB !important; border-radius: 20px !important;
-        border-right: 8px solid #008080 !important;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.03) !important;
-    }
-    div[data-testid="stMetricValue"] > div { color: #004D4D !important; font-weight: 700 !important; }
-
-    /* 5. שורת אייקונים בוגרת */
-    .icon-card {
-        text-align: center; background: #FAFAFA;
-        padding: 20px; border-radius: 18px; border: 1px solid #E0EAEA;
-    }
+    div[data-testid="stMetric"] { background: #F4FBFB !important; border-radius: 15px !important; border-right: 5px solid #008080 !important; padding: 10px !important; }
     </style>
+    <div class="side-label-visual">⚙️ הגדרות</div>
+    <div class="fab-plus-visual">+</div>
     """, unsafe_allow_html=True)
 
-# --- חלונות מרחפים ותפריטים ---
-
-@st.dialog("📝 תנועה חדשה")
+# --- חלונות דיאלוג ---
+@st.dialog("תנועה חדשה")
 def show_transaction():
-    st.markdown("### דיווח פעולה")
+    st.markdown("### 📝 דיווח פעולה")
     t_mode = st.radio("סוג", ["הוצאה", "הכנסה"], horizontal=True)
     ca, cb = st.columns(2)
     with ca:
-        t_amount = st.number_input("סכום ($)", min_value=0.0)
+        t_amount = st.number_input("סכום", min_value=0.0)
         t_wallet = st.selectbox("חשבון", ["מזומן", "BofA", "Amex", "Pepper"])
     with cb:
         t_date = st.date_input("תאריך", datetime.now())
         t_cat = st.selectbox("קטגוריה", ["צדקה", "רכב", "מזון", "דירה", "כללי"])
-    st.text_area("פירוט:", placeholder="לפרט כאן...")
-    if st.button("אישור ושמירה", use_container_width=True, key="save_real"):
-        st.balloons()
+    t_desc = st.text_input("פירוט")
+    
+    if st.button("שמור נתונים", key="confirm_btn_actual"):
+        new_data = {
+            "date": t_date.strftime("%Y-%m-%d"),
+            "type": t_mode,
+            "amount": t_amount if t_mode == "הכנסה" else -t_amount,
+            "wallet": t_wallet,
+            "category": t_cat,
+            "description": t_desc
+        }
+        st.session_state.df = pd.concat([st.session_state.df, pd.DataFrame([new_data])], ignore_index=True)
+        save_data(st.session_state.df)
+        st.success("נשמר בהצלחה!")
         st.rerun()
 
-# --- תפריט צד (Sidebar) מעוצב ונקי ---
-with st.sidebar:
-    st.markdown("<h2 style='color: #008080;'>⚙️ כלים והגדרות</h2>", unsafe_allow_html=True)
-    st.markdown("---")
-    if st.button("🤖 בוט פיננסי", use_container_width=True, key="bot_btn"): st.write("הבוט בדרך...")
-    if st.button("📜 היסטוריה", use_container_width=True, key="hist_btn"): st.write("טוען היסטוריה...")
-    st.markdown("---")
-    st.number_input("יעד חיסכון חודשי", value=20000)
+@st.dialog("הגדרות")
+def show_settings():
+    st.write("נתונים גולמיים:")
+    st.dataframe(st.session_state.df)
+    if st.button("מחק הכל"):
+        st.session_state.df = pd.DataFrame(columns=["date", "type", "amount", "wallet", "category", "description"])
+        save_data(st.session_state.df)
+        st.rerun()
 
-# --- תוכן דף הבית ---
+# הפעלת הכפתורים
+if st.button("", key="real_settings_btn"): show_settings()
+if st.button("", key="real_plus_btn"): show_transaction()
 
-# כפתור הפלוס הצף (משתמש ב-st.button שמוחבא מאחורי העיצוב)
-st.markdown('<div class="floating-plus" onclick="document.querySelector(\'button[key=plus_trigger]\').click()">+</div>', unsafe_allow_html=True)
-if st.button(" ", key="plus_trigger"):
-    show_transaction()
+# --- תצוגת נתונים (Dashboard) ---
+st.markdown('<h1 style="text-align: center; color: #004D4D;">Wealth Management</h1>', unsafe_allow_html=True)
 
-st.markdown('<h1 style="text-align: center; color: #004D4D; font-size: 34px;">Wealth Management</h1>', unsafe_allow_html=True)
+# חישובים מהדאטה-פרייס
+df = st.session_state.df
+total_balance = df['amount'].sum() if not df.empty else 0
+expenses_df = df[df['amount'] < 0].copy()
+expenses_df['amount'] = expenses_df['amount'].abs()
 
-# יעד חיסכון
-col_goal = st.columns([1, 3, 1])
-with col_goal[1]:
-    st.markdown("<p style='text-align:center; font-size:14px; color:#666;'>יעד חיסכון שנתי: <b>$12,450 / $20,000</b></p>", unsafe_allow_html=True)
-    st.progress(0.62)
-
-st.markdown("<br>", unsafe_allow_html=True)
+# שורת מטריקות
 m1, m2, m3 = st.columns(3)
-with m1: st.metric("Cash Balance", "$2,450")
-with m2: st.metric("Bank Assets", "$4,100")
-with m3: st.metric("Credit Debt", "-$1,200")
+with m1: st.metric("יתרה כוללת", f"${total_balance:,.0f}")
+with m2: st.metric("הוצאות החודש", f"${expenses_df['amount'].sum():,.0f}")
+with m3: st.metric("מספר תנועות", len(df))
 
-st.markdown("<br>", unsafe_allow_html=True)
-g1, g2 = st.columns(2)
-df = pd.DataFrame({'Cat': ['רכב', 'מזון', 'צדקה', 'דירה', 'כללי'], 'Val': [800, 300, 750, 1200, 250]})
-colors = ['#008080', '#2E9A9A', '#5CB4B4', '#8ACFCF', '#B8E9E9']
-
-with g1:
-    st.markdown("<p style='text-align:center; font-weight:700; color:#004D4D;'>📊 פירוט הוצאות שבועי</p>", unsafe_allow_html=True)
-    fig1 = px.pie(df, values='Val', names='Cat', hole=0.7)
-    fig1.update_traces(marker=dict(colors=colors), textinfo='label+value')
-    fig1.update_layout(showlegend=False, margin=dict(t=0, b=0, l=30, r=30), height=300)
-    st.plotly_chart(fig1, use_container_width=True)
-
-with g2:
-    st.markdown("<p style='text-align:center; font-weight:700; color:#004D4D;'>📈 ממוצע דו-שבועי כללי</p>", unsafe_allow_html=True)
-    fig2 = px.pie(df, values='Val', names='Cat', hole=0.7)
-    fig2.update_traces(marker=dict(colors=colors[::-1]), textinfo='label+value')
-    fig2.update_layout(showlegend=False, margin=dict(t=0, b=0, l=30, r=30), height=300)
-    st.plotly_chart(fig2, use_container_width=True)
-
-st.markdown("<br>", unsafe_allow_html=True)
-row_icons = st.columns(5)
-items = [("⊖", "רכב"), ("⊙", "מזון"), ("⊗", "צדקה"), ("⊘", "דירה"), ("⊕", "כללי")]
-for i, (sym, name) in enumerate(items):
-    with row_icons[i]:
-        st.markdown(f'<div class="icon-card"><div style="font-size:24px; color:#008080; margin-bottom:5px;">{sym}</div><div style="color:#004D4D; font-weight:700; font-size:13px;">{name}</div></div>', unsafe_allow_html=True)
+# גרפים
+if not expenses_df.empty:
+    g1, g2 = st.columns(2)
+    with g1:
+        fig1 = px.pie(expenses_df, values='amount', names='category', hole=0.6, title="הוצאות לפי קטגוריה")
+        st.plotly_chart(fig1, use_container_width=True)
+    with g2:
+        # גרף התפתחות יתרה לאורך זמן
+        df['date'] = pd.to_datetime(df['date'])
+        trend = df.sort_values('date').groupby('date')['amount'].sum().cumsum().reset_index()
+        fig2 = px.line(trend, x='date', y='amount', title="מגמת הון עצמי")
+        st.plotly_chart(fig2, use_container_width=True)
+else:
+    st.info("עדיין אין נתונים להצגה. לחץ על ה-+ למטה כדי להוסיף תנועה!")
