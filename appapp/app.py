@@ -6,64 +6,56 @@ import plotly.express as px
 # הגדרות דף - ניקוי מוחלט
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# --- הזרקת CSS ו-HTML לתיקון הריבועים והפעלת הכפתורים ---
+# --- הזרקת CSS ו-HTML לכפתורים לחיצים ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
     
-    /* 1. הסתרה מוחלטת של רכיבי מערכת וריבועים לבנים בראש הדף */
+    /* 1. הסתרת רכיבי מערכת */
     [data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"] {
         display: none !important;
     }
     .stApp { background-color: #FFFFFF !important; }
     * { font-family: 'Assistant', sans-serif; direction: rtl; }
 
-    /* העלמה אגרסיבית של כל ריבוע לבן שנוצר ע"י כפתור */
-    div.stButton > button {
-        background: transparent !important;
-        border: none !important;
-        color: transparent !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        height: 0px !important;
-        width: 0px !important;
-        min-height: 0px !important;
-        position: fixed !important; /* נועל אותם שלא יקפצו למעלה */
-    }
-
-    /* 2. עיצוב ויזואלי של התווית הימנית */
-    .side-label-ui {
+    /* 2. עיצוב ויזואלי לתווית הימנית */
+    .side-label-visual {
         position: fixed; top: 25%; right: 0;
         background-color: #008080; color: white;
         padding: 20px 12px; border-radius: 15px 0 0 15px;
-        z-index: 9999; writing-mode: vertical-rl;
+        z-index: 999; writing-mode: vertical-rl;
         text-orientation: mixed; font-weight: 600; font-size: 14px;
         box-shadow: -2px 4px 15px rgba(0,0,0,0.2);
-        pointer-events: none;
+        pointer-events: none; /* מאפשר ללחיצה לעבור לכפתור שמתחת */
     }
 
-    /* 3. עיצוב ויזואלי של כפתור הפלוס */
-    .plus-circle-ui {
+    /* 3. עיצוב ויזואלי לפלוס */
+    .fab-plus-visual {
         position: fixed; bottom: 35px; left: 35px;
-        width: 75px; height: 75px; background-color: #008080;
-        color: white !important; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
+        width: 75px; height: 75px;
+        background-color: #008080; color: white !important;
+        border-radius: 50%; display: flex;
+        align-items: center; justify-content: center;
         font-size: 45px; box-shadow: 0 10px 30px rgba(0, 128, 128, 0.4);
-        z-index: 9999; border: 4px solid white;
+        z-index: 999; border: 4px solid white;
         pointer-events: none;
     }
 
-    /* 4. מיקום הכפתורים השקופים האמיתיים מעל העיצוב */
-    button[key="real_settings_btn"] {
-        top: 25% !important; right: 0 !important;
+    /* 4. הכפתורים האמיתיים - הפיכה לשקופים ומיקום מעל העיצוב */
+    button[key="settings_trigger"] {
+        position: fixed !important; top: 25% !important; right: 0 !important;
         width: 50px !important; height: 140px !important;
-        z-index: 10000 !important; opacity: 0 !important;
+        background: transparent !important; border: none !important;
+        color: transparent !important; z-index: 1000 !important;
+        cursor: pointer !important;
     }
 
-    button[key="real_plus_btn"] {
-        bottom: 35px !important; left: 35px !important;
+    button[key="plus_trigger"] {
+        position: fixed !important; bottom: 35px !important; left: 35px !important;
         width: 75px !important; height: 75px !important;
-        z-index: 10000 !important; opacity: 0 !important;
+        background: transparent !important; border: none !important;
+        color: transparent !important; z-index: 1000 !important;
+        cursor: pointer !important; border-radius: 50% !important;
     }
 
     /* 5. כרטיסיות נתונים */
@@ -74,18 +66,18 @@ st.markdown("""
     }
     div[data-testid="stMetricValue"] > div { color: #004D4D !important; font-weight: 700 !important; }
 
-    /* 6. אייקונים בוגרים */
+    /* 6. אייקונים בתחתית */
     .icon-card {
         text-align: center; background: #FAFAFA;
         padding: 20px; border-radius: 18px; border: 1px solid #E0EAEA;
     }
     </style>
-
-    <div class="side-label-ui">⚙️ הגדרות וכלים</div>
-    <div class="plus-circle-ui">+</div>
+    
+    <div class="side-label-visual">⚙️ הגדרות וכלים</div>
+    <div class="fab-plus-visual">+</div>
     """, unsafe_allow_html=True)
 
-# --- חלונות מרחפים ---
+# --- פונקציות חלונות מרחפים ---
 
 @st.dialog("⚙️ הגדרות וכלים")
 def show_settings():
@@ -112,17 +104,16 @@ def show_transaction():
     if st.button("אישור ושמירה", use_container_width=True):
         st.balloons(); st.rerun()
 
-# --- כפתורי הפעלה (שקופים - הם אלו שמפעילים את הכל) ---
-if st.button("", key="real_settings_btn"):
+# --- כפתורי הפעלה (שקופים - יושבים בדיוק מעל העיצוב) ---
+if st.button(" ", key="settings_trigger"):
     show_settings()
 
-if st.button("", key="real_plus_btn"):
+if st.button("  ", key="plus_trigger"):
     show_transaction()
 
 # --- תוכן דף הבית ---
 st.markdown('<h1 style="text-align: center; color: #004D4D; font-size: 34px;">Wealth Management</h1>', unsafe_allow_html=True)
 
-# יעד חיסכון
 col_goal = st.columns([1, 3, 1])
 with col_goal[1]:
     st.markdown("<p style='text-align:center; font-size:14px; color:#666;'>יעד חיסכון שנתי: <b>$12,450 / $20,000</b></p>", unsafe_allow_html=True)
