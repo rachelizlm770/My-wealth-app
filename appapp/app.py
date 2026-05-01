@@ -3,22 +3,63 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# 1. הגדרות דף - יציבות מוחלטת
+# הגדרות דף - יציבות וניקיון
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# 2. ניהול מצב לחיצות (Session State)
-if 'active_dialog' not in st.session_state:
-    st.session_state.active_dialog = None
+# --- הזרקת CSS לעיצוב יוקרתי ללא תקלות ---
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
+    
+    /* הסתרת רכיבי מערכת */
+    [data-testid="stHeader"], [data-testid="stSidebarCollapsedControl"] { display: none !important; }
+    .stApp { background-color: #FFFFFF !important; }
+    * { font-family: 'Assistant', sans-serif; direction: rtl; }
 
-# --- פונקציות חלונות מרחפים ---
+    /* כרטיסיות נתונים */
+    div[data-testid="stMetric"] {
+        background: #F4FBFB !important;
+        border-radius: 20px !important;
+        border-right: 8px solid #2C5F5F !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.03) !important;
+        padding: 20px !important;
+    }
+    div[data-testid="stMetricValue"] > div { color: #1B4343 !important; font-weight: 700 !important; }
+
+    /* עיצוב כפתורים צפים - הדרך הבטוחה */
+    .stButton > button {
+        border-radius: 50% !important;
+        width: 70px !important;
+        height: 70px !important;
+        background-color: #2C5F5F !important;
+        color: white !important;
+        border: 3px solid white !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
+        font-weight: bold !important;
+        position: fixed !important;
+        z-index: 1000 !important;
+    }
+    
+    /* מיקום כפתור הפלוס בשמאל למטה */
+    div.stButton > button[key="plus"] { bottom: 30px !important; left: 30px !important; font-size: 30px !important; }
+    
+    /* מיקום כפתור ההגדרות בימין למטה */
+    div.stButton > button[key="tools"] { bottom: 30px !important; right: 30px !important; font-size: 25px !important; }
+
+    /* אייקונים בתחתית */
+    .icon-card {
+        text-align: center; background: #FAFAFA;
+        padding: 20px; border-radius: 18px; border: 1px solid #E0EAEA;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- פונקציות חלונות (Dialog) ---
 @st.dialog("⚙️ הגדרות וכלים")
 def show_settings():
-    st.markdown("### 🛠️ תפריט ניהול")
     st.write("🤖 בוט פיננסי | 📜 היסטוריה | 📦 ארכיון")
     st.number_input("יעד חיסכון חודשי", value=20000)
-    if st.button("סגור"):
-        st.session_state.active_dialog = None
-        st.rerun()
+    if st.button("סגור"): st.rerun()
 
 @st.dialog("📝 תנועה חדשה")
 def show_transaction():
@@ -31,71 +72,12 @@ def show_transaction():
     with cb:
         t_date = st.date_input("תאריך", datetime.now())
         t_cat = st.selectbox("קטגוריה", ["צדקה", "רכב", "מזון", "דירה", "כללי"])
-    st.text_area("פירוט:", placeholder="לפרט כאן...")
+    st.text_area("לפרט כאן (תיאור):", placeholder="הוסיפי תיאור כאן...")
     if st.button("אישור ושמירה", use_container_width=True):
-        st.balloons()
-        st.session_state.active_dialog = None
-        st.rerun()
+        st.balloons(); st.rerun()
 
-# --- הזרקת CSS לעיצוב יוקרתי ללא ריבועים לבנים ---
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
-    
-    /* הסתרת רכיבי מערכת */
-    [data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"] {
-        display: none !important;
-    }
-    .stApp { background-color: #FFFFFF !important; }
-    * { font-family: 'Assistant', sans-serif; direction: rtl; }
-
-    /* עיצוב כפתור הפלוס העגול - דריסת העיצוב של Streamlit */
-    div.stButton > button[key="btn_plus"] {
-        position: fixed !important;
-        bottom: 35px !important;
-        left: 35px !important;
-        width: 75px !important;
-        height: 75px !important;
-        background-color: #008080 !important;
-        color: white !important;
-        border-radius: 50% !important;
-        border: 4px solid white !important;
-        font-size: 40px !important;
-        box-shadow: 0 10px 30px rgba(0, 128, 128, 0.4) !important;
-        z-index: 999999 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-
-    /* עיצוב תווית הגדרות ימנית - דריסת העיצוב של Streamlit */
-    div.stButton > button[key="btn_settings"] {
-        position: fixed !important;
-        top: 25% !important;
-        right: 0 !important;
-        width: 45px !important;
-        height: 140px !important;
-        background-color: #008080 !important;
-        color: white !important;
-        border-radius: 15px 0 0 15px !important;
-        writing-mode: vertical-rl !important;
-        text-orientation: mixed !important;
-        z-index: 999999 !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-        border: none !important;
-        box-shadow: -2px 4px 15px rgba(0,0,0,0.15) !important;
-    }
-
-    /* הסרת כל ריבוע לבן מכל כפתור אחר בדף */
-    .stButton > button:not([key="btn_plus"]):not([key="btn_settings"]) {
-        border-radius: 10px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# 3. תוכן דף הבית
-st.markdown('<h1 style="text-align: center; color: #004D4D; font-size: 34px;">Wealth Management</h1>', unsafe_allow_html=True)
+# --- תוכן דף הבית ---
+st.markdown('<h1 style="text-align: center; color: #1B4343; font-size: 32px;">Wealth Management</h1>', unsafe_allow_html=True)
 
 # יעד חיסכון
 col_goal = st.columns([1, 3, 1])
@@ -113,33 +95,33 @@ with m3: st.metric("Credit Debt", "-$1,200")
 st.markdown("<br>", unsafe_allow_html=True)
 g1, g2 = st.columns(2)
 df = pd.DataFrame({'Cat': ['רכב', 'מזון', 'צדקה', 'דירה', 'כללי'], 'Val': [800, 300, 750, 1200, 250]})
-colors = ['#008080', '#2E9A9A', '#5CB4B4', '#8ACFCF', '#B8E9E9']
+colors = ['#2C5F5F', '#4E8B8B', '#76A5A5', '#A2C1C1', '#CDE0E0']
 
 with g1:
-    st.markdown("<p style='text-align:center; font-weight:700; color:#004D4D;'>📊 פירוט הוצאות שבועי</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-weight:700; color:#1B4343;'>📊 פירוט הוצאות שבועי</p>", unsafe_allow_html=True)
     fig1 = px.pie(df, values='Val', names='Cat', hole=0.7)
-    fig1.update_traces(marker=dict(colors=colors), textinfo='label+value')
+    fig1.update_traces(marker=dict(colors=colors), textinfo='label+value', textposition='outside')
     fig1.update_layout(showlegend=False, margin=dict(t=0, b=0, l=30, r=30), height=300)
     st.plotly_chart(fig1, use_container_width=True)
 
 with g2:
-    st.markdown("<p style='text-align:center; font-weight:700; color:#004D4D;'>📈 ממוצע דו-שבועי כללי</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-weight:700; color:#1B4343;'>📈 ממוצע דו-שבועי כללי</p>", unsafe_allow_html=True)
     fig2 = px.pie(df, values='Val', names='Cat', hole=0.7)
-    fig2.update_traces(marker=dict(colors=colors[::-1]), textinfo='label+value')
+    fig2.update_traces(marker=dict(colors=colors[::-1]), textinfo='label+value', textposition='outside')
     fig2.update_layout(showlegend=False, margin=dict(t=0, b=0, l=30, r=30), height=300)
     st.plotly_chart(fig2, use_container_width=True)
 
-# אייקונים
+# שורת אייקונים
 st.markdown("<br>", unsafe_allow_html=True)
 row_icons = st.columns(5)
 items = [("🚗", "רכב"), ("🛒", "מזון"), ("🤝", "צדקה"), ("🏠", "דירה"), ("✨", "כללי")]
-for i, (sym, name) in enumerate(items):
+for i, (icon, name) in enumerate(items):
     with row_icons[i]:
-        st.markdown(f'<div style="text-align:center; background:#FAFAFA; padding:20px; border-radius:18px; border:1px solid #E0EAEA;"><div style="font-size:24px; color:#008080; margin-bottom:5px;">{icon}</div><div style="color:#004D4D; font-weight:700; font-size:13px;">{name}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="icon-card"><div style="font-size: 22px;">{icon}</div><div style="color:#1B4343; font-weight:700; font-size:13px;">{name}</div></div>', unsafe_allow_html=True)
 
-# --- כפתורי ההפעלה המעוצבים (אלו הכפתורים היחידים שעובדים) ---
-if st.button("⚙️ הגדרות וכלים", key="btn_settings"):
-    show_settings()
-
-if st.button("+", key="btn_plus"):
+# --- הכפתורים הצפים - הפתרון היציב ---
+if st.button("+", key="plus"):
     show_transaction()
+
+if st.button("⚙️", key="tools"):
+    show_settings()
