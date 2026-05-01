@@ -3,10 +3,81 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# 1. הגדרות דף - יציבות וניקיון
+# הגדרות דף
 st.set_page_config(page_title="Wealth Management", layout="wide", initial_sidebar_state="collapsed")
 
-# --- פונקציות חלונות (Dialog) ---
+# --- CSS לעיצוב יוקרתי וכפתורים שעובדים באמת ---
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
+    
+    /* ניקוי רכיבי מערכת */
+    [data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"] {
+        display: none !important;
+    }
+    .stApp { background-color: #FFFFFF !important; }
+    * { font-family: 'Assistant', sans-serif; direction: rtl; text-align: right; }
+
+    /* עיצוב כפתור הפלוס (בשמאל למטה) */
+    div.stButton > button[key="plus_main"] {
+        position: fixed !important;
+        bottom: 30px !important;
+        left: 30px !important;
+        width: 70px !important;
+        height: 70px !important;
+        background-color: #008080 !important;
+        color: white !important;
+        border-radius: 50% !important;
+        border: 4px solid white !important;
+        font-size: 35px !important;
+        box-shadow: 0 10px 25px rgba(0, 128, 128, 0.4) !important;
+        z-index: 1000000 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* עיצוב תווית הגדרות (בימין) */
+    div.stButton > button[key="settings_main"] {
+        position: fixed !important;
+        top: 25% !important;
+        right: 0 !important;
+        width: 45px !important;
+        height: 140px !important;
+        background-color: #008080 !important;
+        color: white !important;
+        border-radius: 15px 0 0 15px !important;
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important;
+        z-index: 1000000 !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        border: none !important;
+        box-shadow: -2px 4px 15px rgba(0,0,0,0.1) !important;
+    }
+
+    /* כרטיסיות נתונים */
+    div[data-testid="stMetric"] {
+        background: #F4FBFB !important;
+        border-radius: 20px !important;
+        border-right: 8px solid #008080 !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.03) !important;
+    }
+    div[data-testid="stMetricValue"] > div { color: #004D4D !important; font-weight: 700 !important; }
+
+    /* אייקונים בתחתית */
+    .icon-card {
+        text-align: center;
+        background: #FAFAFA;
+        padding: 20px;
+        border-radius: 18px;
+        border: 1px solid #E0EAEA;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- חלונות מרחפים ---
+
 @st.dialog("⚙️ הגדרות וכלים")
 def show_settings():
     st.markdown("### 🛠️ תפריט ניהול")
@@ -25,80 +96,17 @@ def show_transaction():
     with cb:
         t_date = st.date_input("תאריך", datetime.now())
         t_cat = st.selectbox("קטגוריה", ["צדקה", "רכב", "מזון", "דירה", "כללי"])
-    st.text_area("לפרט כאן:", placeholder="הוסיפי תיאור...")
+    st.text_area("פירוט:", placeholder="הוסיפי תיאור כאן...")
     if st.button("אישור ושמירה", use_container_width=True):
         st.balloons(); st.rerun()
 
-# --- הזרקת CSS לעיצוב היוקרתי (ללא ריבועים לבנים) ---
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
-    
-    /* הסתרת רכיבי מערכת */
-    [data-testid="stHeader"], [data-testid="stSidebarCollapsedControl"] { display: none !important; }
-    .stApp { background-color: #FFFFFF !important; }
-    * { font-family: 'Assistant', sans-serif; direction: rtl; }
+# --- כפתורי הפעלה (הם המעוצבים עכשיו) ---
+# הצבתי אותם כאן כדי שיהיו זמינים ל-CSS
+if st.button("⚙️ הגדרות וכלים", key="settings_main"):
+    show_settings()
 
-    /* העלמת כל זכר לכפתורי Streamlit הגולמיים */
-    .stButton > button {
-        display: none !important;
-    }
-
-    /* עיצוב התווית הימנית (הגדרות) */
-    .custom-settings-btn {
-        position: fixed; top: 25%; right: 0;
-        background-color: #008080; color: white;
-        padding: 20px 12px; border-radius: 15px 0 0 15px;
-        z-index: 10000; writing-mode: vertical-rl;
-        text-orientation: mixed; font-weight: 600; font-size: 14px;
-        box-shadow: -2px 4px 15px rgba(0,0,0,0.2);
-        cursor: pointer; border: none;
-    }
-
-    /* עיצוב הפלוס השמאלי (תנועה חדשה) */
-    .custom-plus-btn {
-        position: fixed; bottom: 35px; left: 35px;
-        width: 75px; height: 75px; background-color: #008080;
-        color: white; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 45px; box-shadow: 0 10px 30px rgba(0, 128, 128, 0.4);
-        z-index: 10000; border: 4px solid white;
-        cursor: pointer;
-    }
-
-    /* כרטיסיות נתונים */
-    div[data-testid="stMetric"] {
-        background: #F4FBFB !important; border-radius: 20px !important;
-        border-right: 8px solid #008080 !important;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.03) !important;
-    }
-    div[data-testid="stMetricValue"] > div { color: #004D4D !important; font-weight: 700 !important; }
-
-    /* אייקונים בתחתית */
-    .icon-card {
-        text-align: center; background: #FAFAFA;
-        padding: 20px; border-radius: 18px; border: 1px solid #E0EAEA;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# --- פתרון הקליק: יצירת הכפתורים בתוך ה-HTML והפעלתם ---
-# השתמשתי ב-JavaScript פשוט כדי שהלחיצה על העיצוב תפעיל את הדיאלוג
-if st.components.v1.html("""
-    <script>
-    function openSettings() { window.parent.postMessage({type: 'streamlit:setComponentValue', value: 'settings'}, '*'); }
-    function openPlus() { window.parent.postMessage({type: 'streamlit:setComponentValue', value: 'plus'}, '*'); }
-    </script>
-    <div onclick="openSettings()" style="position: fixed; top: 25%; right: 0; background: #008080; color: white; padding: 20px 12px; border-radius: 15px 0 0 15px; cursor: pointer; writing-mode: vertical-rl; font-family: sans-serif; font-weight: bold; z-index: 10000;">⚙️ הגדרות וכלים</div>
-    <div onclick="openPlus()" style="position: fixed; bottom: 35px; left: 35px; width: 75px; height: 75px; background: #008080; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 45px; border: 4px solid white; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 10000;">+</div>
-""", height=0):
-    pass
-
-# זיהוי לחיצות (עוקף את הכפתורים הרגילים)
-query_params = st.query_params
-if "action" in query_params:
-    if query_params["action"] == "settings": show_settings()
-    if query_params["action"] == "plus": show_transaction()
+if st.button("+", key="plus_main"):
+    show_transaction()
 
 # --- תוכן דף הבית ---
 st.markdown('<h1 style="text-align: center; color: #004D4D; font-size: 34px;">Wealth Management</h1>', unsafe_allow_html=True)
@@ -135,14 +143,9 @@ with g2:
     fig2.update_layout(showlegend=False, margin=dict(t=0, b=0, l=30, r=30), height=300)
     st.plotly_chart(fig2, use_container_width=True)
 
-# שורת אייקונים בוגרת
 st.markdown("<br>", unsafe_allow_html=True)
 row_icons = st.columns(5)
 items = [("🚗", "רכב"), ("🛒", "מזון"), ("🤝", "צדקה"), ("🏠", "דירה"), ("✨", "כללי")]
-for i, (sym, name) in enumerate(items):
+for i, (icon, name) in enumerate(items):
     with row_icons[i]:
-        st.markdown(f'<div class="icon-card"><div style="font-size:24px; color:#008080; margin-bottom:5px;">{sym}</div><div style="color:#004D4D; font-weight:700; font-size:13px;">{name}</div></div>', unsafe_allow_html=True)
-
-# כפתורים רזרביים (מוסתרים לחלוטין) למקרה של תקלה
-if st.button(" ", key="hidden_s"): show_settings()
-if st.button("  ", key="hidden_p"): show_transaction()
+        st.markdown(f'<div class="icon-card"><div style="font-size:24px; color:#008080; margin-bottom:5px;">{icon}</div><div style="color:#004D4D; font-weight:700; font-size:13px;">{name}</div></div>', unsafe_allow_html=True)
